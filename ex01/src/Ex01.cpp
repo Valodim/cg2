@@ -1,11 +1,14 @@
 #include "Ex01.h"
-#include "ObjLoader.h""
+#include "ObjLoader.h"
 
 void initGL();
 void resizeGL(int w, int h);
 void updateGL();
 void idle();
 void keyboardEvent(unsigned char key, int x, int y);
+
+std::vector<Vertex> vertexList;
+std::vector<int> indexList;
 
 int main (int argc, char **argv) {
   glutInit(&argc, argv);
@@ -28,9 +31,10 @@ int main (int argc, char **argv) {
   fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
   
   // load "HelloOpenGL.obj" file here using loadObjFile(...) //
-  
+  loadObjFile("HelloOpenGL.obj", vertexList, indexList);
+
   glutMainLoop();
-  
+
   return 0;
 }
 

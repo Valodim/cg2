@@ -7,6 +7,6 @@
 
 #include "OpenGLTools.h"
 
-void loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vector<int> &indexList);
+bool loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vector<int> &indexList);
 
 #endif
