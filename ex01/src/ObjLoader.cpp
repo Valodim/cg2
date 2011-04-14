@@ -33,6 +33,7 @@ bool loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vec
                 break;
             // Leave an error msg, and return false.
             std::cerr << "Parse failure at line " << lineno << std::endl;
+            ifs.close();
             return false;
         }
         switch(typechar) {
@@ -42,6 +43,7 @@ bool loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vec
                 line >> x >> y >> z;
                 if(line.fail()) {
                     std::cerr << "line " << lineno << ": faulty vertex!" << std::endl;
+                    ifs.close();
                     return false;
                 }
 
@@ -55,6 +57,7 @@ bool loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vec
                 line >> f1 >> f2 >> f3;
                 if(line.fail()) {
                     std::cerr << "line " << lineno << ": faulty face!" << std::endl;
+                    ifs.close();
                     return false;
                 }
 
@@ -84,6 +87,7 @@ bool loadObjFile(const char *fileName, std::vector<Vertex> &vertexList, std::vec
 
     }
 
+    // Close the input file
     ifs.close();
 
     return true;
