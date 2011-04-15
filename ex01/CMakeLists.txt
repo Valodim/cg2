@@ -26,7 +26,9 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 # setup your link directories for additional libraries here
 link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib")
-find_library(GLTOOLS_LIBRARY openGLTools)
+find_library(GLTOOLS_LIBRARY openGLTools
+        PATHS "${CMAKE_CURRENT_SOURCE_DIR}/lib"
+    )
 
 # setup subdirectories here, that shall be processed by CMake
 add_subdirectory(src)

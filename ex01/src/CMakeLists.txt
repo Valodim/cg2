@@ -13,4 +13,5 @@ target_link_libraries(ex01
         ${OPENGL_LIBRARIES}
         ${GLUT_LIBRARIES}
         ${GLEW_LIBRARIES}
+        ${GLTOOLS_LIBRARY}
     )
