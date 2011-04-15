@@ -22,9 +22,5 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 # setup your include directories here
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-# setup your link directories for additional libraries here
-link_directories("${CMAKE_CURRENT_SOURCE_DIR}/lib")
-find_library(GLTOOLS_LIBRARY openGLTools)
-
 # setup subdirectories here, that shall be processed by CMake
 add_subdirectory(src)
