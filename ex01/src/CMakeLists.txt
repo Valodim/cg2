@@ -7,7 +7,7 @@
 #  - OpenGL libraries -> use ${OpenGL_LIBRARIES}
 #  - GLUT libraries -> use ${GLUT_LIBRARIES}
 #  - GLEW libraries -> use ${GLEW_LIBRARIES}
-add_executable(ex01 Ex01 ObjLoader)
+add_executable(ex01 Ex01 ObjLoader OpenGLTools)
 
 target_link_libraries(ex01
         ${OPENGL_LIBRARIES}
