@@ -19,6 +19,8 @@ FIND_PACKAGE(GLUT REQUIRED)
 # setup the executable output path here
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR})
 
+configure_file("HelloOpenGL.obj" "HelloOpenGL.obj" COPYONLY)
+
 # setup your include directories here
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
