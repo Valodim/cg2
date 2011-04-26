@@ -183,8 +183,10 @@ void renderTextFile(const char *fileName) {
 
     // glLoadIdentity();
     glPushMatrix();
-    while(ifs.good() && !ifs.eof()) {
+    while(ifs.good()) {
         ifs.get(buf);
+        if(ifs.eof())
+            break;
         if(buf == '\n') {
             glPopMatrix();
             glTranslatef(0.0f, -1.0f, 0.0f);

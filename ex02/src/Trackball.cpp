@@ -28,7 +28,11 @@ void Trackball::updateMousePos(int x, int y) {
     mLastTheta = mTheta;
 
     mTheta -= (x-mX) * 0.01f;
-    mPhi -= (y-mY) * 0.01f;
+    mPhi += (y-mY) * 0.01f;
+    if(mPhi > 3.14f)
+        mPhi = 3.14f;
+    if(mPhi < 0)
+        mPhi = 0;
 
     std::cout << "Phi: " << mPhi << ", Theta: " << mTheta << std::endl;
 
@@ -62,23 +66,28 @@ void Trackball::updateOffset(Motion motion) {
   switch (motion) {
     case MOVE_FORWARD : {
       // TODO: move STEP_DISTANCE along viewing direction //
-      mViewOffset[0] -= cos(mTheta) * STEP_DISTANCE;
+      mViewOffset[0] += cos(mTheta) * STEP_DISTANCE;
+      mViewOffset[1] += cos(mPhi) * STEP_DISTANCE;
       mViewOffset[2] -= sin(mTheta) * STEP_DISTANCE;
       break;
     }
     case MOVE_BACKWARD : {
       // TODO: move STEP_DISTANCE in opposite of viewing direction //
-      mViewOffset[2] += STEP_DISTANCE;
+      mViewOffset[0] -= cos(mTheta) * STEP_DISTANCE;
+      mViewOffset[1] -= cos(mPhi) * STEP_DISTANCE;
+      mViewOffset[2] += sin(mTheta) * STEP_DISTANCE;
       break;
     }
     case MOVE_LEFT : {
       // TODO: move STEP_DISTANCE to the left on the x-z-plane //
-      mViewOffset[0] -= STEP_DISTANCE;
+      mViewOffset[0] -= sin(mTheta) * STEP_DISTANCE;
+      mViewOffset[2] -= cos(mTheta) * STEP_DISTANCE;
       break;
     }
     case MOVE_RIGHT : {
       // TODO: move STEP_DISTANCE to the right on the x-z-plane //
-      mViewOffset[0] += STEP_DISTANCE;
+      mViewOffset[0] += sin(mTheta) * STEP_DISTANCE;
+      mViewOffset[2] += cos(mTheta) * STEP_DISTANCE;
       break;
     }
     default : break;
