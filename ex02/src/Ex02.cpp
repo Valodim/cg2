@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 
+#include <cctype>
+
 #include "MeshObj.h"
 #include "ObjLoader.h"
 #include "Trackball.h"
@@ -53,6 +55,9 @@ int main (int argc, char **argv) {
   glutDisplayFunc(updateGL);
   glutIdleFunc(idle);
   // TODO: connect callback functions for keyboard and mouse events //
+  glutKeyboardFunc(keyboardEvent);
+  glutMouseFunc(mouseEvent);
+  glutMotionFunc(mouseMoveEvent);
   
   initGL();
   
@@ -98,17 +103,19 @@ void initGL() {
 }
 
 void updateGL() {
-  // clear render buffer //
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  // reset all transformations //
-  glLoadIdentity();
-  
-  // TODO: use your trackball to rotate the view here, i.e. call the rotateView() method of your trackball //
-  
-  // TODO: draw your text here //
-  
-  // swap render buffer and screen buffer //
-  glutSwapBuffers();
+    // clear render buffer //
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // reset all transformations //
+    glLoadIdentity();
+
+    // use your trackball to rotate the view here, i.e. call the rotateView() method of your trackball //
+    trackball.rotateView();
+
+    // TODO: draw your text here //
+    renderTextFile(fileName);
+
+    // swap render buffer and screen buffer //
+    glutSwapBuffers();
 }
 
 void idle() {
@@ -128,32 +135,81 @@ void resizeGL(int w, int h) {
 }
 
 void keyboardEvent(unsigned char key, int x, int y) {
-  switch (key) {
-    case 'x':
-    case 27 : {
-      exit(0);
-      break;
+    switch (key) {
+        case 'q':
+        case 'x':
+        case 27 : {
+                      exit(0);
+                      break;
+                  }
+
+        case 'w':
+            trackball.updateOffset(Trackball::MOVE_FORWARD);
+            break;
+        case 'a':
+            trackball.updateOffset(Trackball::MOVE_LEFT);
+            break;
+        case 's':
+            trackball.updateOffset(Trackball::MOVE_BACKWARD);
+            break;
+        case 'd':
+            trackball.updateOffset(Trackball::MOVE_RIGHT);
+            break;
     }
-    // TODO: add code processing intended movement (forward, backward, left, right) and update the trackball accordingly //
-  }
-  // tell OpenGL to redraw everything since the viewport has changed //
-  glutPostRedisplay();
+    // tell OpenGL to redraw everything since the viewport has changed //
+    glutPostRedisplay();
 }
 
 void mouseEvent(int button, int state, int x, int y) {
-  // this method is triggered whenever a mouse button is pressed or released //
-  // TODO: forward events to the trackball //
+    // this method is triggered whenever a mouse button is pressed or released //
+    if(state == GLUT_UP)
+        trackball.updateMouseBtn(Trackball::NO_BTN, x, y);
+
+    else if(button == GLUT_LEFT_BUTTON)
+        trackball.updateMouseBtn(Trackball::LEFT_BTN, x, y);
+
 }
 
 void mouseMoveEvent(int x, int y) {
-  // this method is triggered whenever the mouse is moved //
-  // TODO: forward movement to the trackball to control viewing changes //
+    // this method is triggered whenever the mouse is moved //
+    trackball.updateMousePos(x, y);
 }
 
 void renderTextFile(const char *fileName) {
-  // TODO: read in and render a text file here //
-  /* - use your .obj loader to get the mesh corresponding a given character and render it
-     - translate sideways by the last characters width
-     - whenever a linebreak occurs, discard all previous translations
+    // read in and render a text file here
+    std::ifstream ifs(fileName, std::ifstream::in);
+
+    char buf;
+
+    // glLoadIdentity();
+    glPushMatrix();
+    while(ifs.good() && !ifs.eof()) {
+        ifs.get(buf);
+        if(buf == '\n') {
+            glPopMatrix();
+            glTranslatef(0.0f, -1.0f, 0.0f);
+            glPushMatrix();
+            continue;
+        }
+        if(buf == 32) {
+            glTranslatef(1.0f, 0.0f, 0.0f);
+            continue;
+        }
+
+        buf = toupper(buf);
+
+        MeshObj* obj = objLoader.getMeshObj(std::string(&buf, 1 *sizeof(char)));
+        if(obj == NULL) {
+            std::cout << "Ignored character: " << (int) buf << std::endl;
+            continue;
+        }
+        obj->render();
+        glTranslatef(obj->getWidth(), 0.0f, 0.0f);
+    }
+    glPopMatrix();
+
+    /* - use your .obj loader to get the mesh corresponding a given character and render it
+       - translate sideways by the last characters width
+       - whenever a linebreak occurs, discard all previous translations
        and translate on the y-axis to begin a new line (hint: glPushMatrix(), glPopMatrix()) */
 }

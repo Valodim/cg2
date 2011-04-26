@@ -1,6 +1,7 @@
 #include "MeshObj.h"
 #include <iostream>
 #include <limits>
+#include <algorithm>
 
 MeshObj::MeshObj() {
   mVertexData.clear();
@@ -17,24 +18,56 @@ MeshObj::~MeshObj() {
 }
 
 void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<unsigned int> &indexData) {
-  // TODO: compute the loaded meshes bounds that may be used later on and store them in mMinBounds, mMaxBounds resp. //
-  
-  // TODO: COPY the data from vertexData and indexData in own data vectors mVertexData and mIndexData //
+    // compute the loaded meshes bounds that may be used later on and store them in mMinBounds, mMaxBounds resp. //
+    for(std::vector<unsigned int>::const_iterator it = indexData.begin(); it != indexData.end(); it++) {
+        if(vertexData[*it].position[0] < mMinBounds[0])
+            mMinBounds[0] = vertexData[*it].position[0];
+        if(vertexData[*it].position[1] < mMinBounds[1])
+            mMinBounds[1] = vertexData[*it].position[1];
+        if(vertexData[*it].position[2] < mMinBounds[2])
+            mMinBounds[2] = vertexData[*it].position[2];
+
+        if(vertexData[*it].position[0] > mMaxBounds[0])
+            mMaxBounds[0] = vertexData[*it].position[0];
+        if(vertexData[*it].position[1] > mMinBounds[1])
+            mMaxBounds[1] = vertexData[*it].position[1];
+        if(vertexData[*it].position[2] > mMinBounds[2])
+            mMaxBounds[2] = vertexData[*it].position[2];
+    }
+
+    // COPY the data from vertexData and indexData in own data vectors mVertexData and mIndexData //
+    this->mVertexData = std::vector<Vertex>(vertexData);
+    this->mIndexData = std::vector<unsigned int>(indexData);
 }
 
 void MeshObj::render(void) {
-  // render the data stored in this object //
-  // - use glBegin(GL_TRIANGLES) ... glEnd() to render every triangle indexed by the mIndexData list //
+    // render the data stored in this object //
+    // - use glBegin(GL_TRIANGLES) ... glEnd() to render every triangle indexed by the mIndexData list //
+
+    glBegin(GL_TRIANGLES);
+    for(unsigned int i = 0; i < mIndexData.size(); i += 3) {
+        Vertex x;
+
+        x = mVertexData[mIndexData[i]];
+        glVertex3d(x.position[0], x.position[1], x.position[2]);
+        x = mVertexData[mIndexData[i+1]];
+        glVertex3d(x.position[0], x.position[1], x.position[2]);
+        x = mVertexData[mIndexData[i+2]];
+        glVertex3d(x.position[0], x.position[1], x.position[2]);
+
+    }
+    glEnd();
+
 }
 
 float MeshObj::getWidth(void) {
-  // TODO: return the width of the current mesh here //
+    return mMaxBounds[0] -mMinBounds[0];
 }
 
 float MeshObj::getHeight(void) {
-  // TODO: return the height of the current mesh here //
+    return mMaxBounds[1] -mMinBounds[1];
 }
 
 float MeshObj::getDepth(void) {
-  // TODO: return the depth of the current mesh here //
+    return mMaxBounds[2] -mMinBounds[2];
 }
