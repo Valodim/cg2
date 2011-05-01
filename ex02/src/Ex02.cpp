@@ -7,6 +7,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
+#include <algorithm>
+#include <cctype>
 
 #include "MeshObj.h"
 #include "ObjLoader.h"
@@ -26,7 +29,6 @@ void keyboardEvent(unsigned char key, int x, int y);
 void mouseEvent(int button, int state, int x, int y);
 void mouseMoveEvent(int x, int y);
 
-// TODO: implement this method at the end of this file for rendering a text file //
 void renderTextFile(const char *fileName);
 
 // initialization of used tools //
@@ -105,8 +107,7 @@ void updateGL() {
   
   // TODO: use your trackball to rotate the view here, i.e. call the rotateView() method of your trackball //
   
-  // TODO: draw your text here //
-  
+  renderTextFile(fileName);
   // swap render buffer and screen buffer //
   glutSwapBuffers();
 }
@@ -151,9 +152,31 @@ void mouseMoveEvent(int x, int y) {
 }
 
 void renderTextFile(const char *fileName) {
-  // TODO: read in and render a text file here //
   /* - use your .obj loader to get the mesh corresponding a given character and render it
      - translate sideways by the last characters width
      - whenever a linebreak occurs, discard all previous translations
        and translate on the y-axis to begin a new line (hint: glPushMatrix(), glPopMatrix()) */
+  std::ifstream in(fileName);
+  glPushMatrix();
+    while(in.good() && !in.eof()) {
+      std::string line;
+      std::getline(in, line);
+      std::transform(line.begin(), line.end(), line.begin(), toupper);
+      glPushMatrix();
+        for(std::string::size_type i = 0; i < line.size(); i++) {
+          MeshObj *meshObj = objLoader.getMeshObj(line.substr(i, 1));
+          if(meshObj != NULL) {
+            meshObj->render();
+            glTranslatef(meshObj->getWidth(), 0.0, 0.0);
+          }
+          else {
+            glTranslatef(EMPTY_LETTER_WIDTH, 0.0, 0.0);
+          }
+          glTranslatef(LETTER_SPACING, 0.0, 0.0);
+        }
+      glPopMatrix();
+      glTranslatef(0.0, LINE_HEIGHT, 0.0);
+    }
+  glPopMatrix();
+  in.close();
 }
