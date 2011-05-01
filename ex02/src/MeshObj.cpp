@@ -40,6 +40,31 @@ void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<u
 void MeshObj::render(void) {
   // render the data stored in this object //
   // - use glBegin(GL_TRIANGLES) ... glEnd() to render every triangle indexed by the mIndexData list //
+  /*
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, mVertexData.data());
+  glBegin(GL_TRIANGLES);
+    for(std::vector< unsigned int >::size_type i = 0; i < mIndexData.size(); i += 3) {
+      glArrayElement(mIndexData.at(i));
+    }
+  glEnd();
+  */
+  glBegin(GL_TRIANGLES);
+    for(std::vector< unsigned int >::size_type i = 0; i < mIndexData.size(); i += 3) {
+      glVertex3f( mVertexData.at(mIndexData.at(i + 0)).position[0]
+                , mVertexData.at(mIndexData.at(i + 0)).position[1]
+                , mVertexData.at(mIndexData.at(i + 0)).position[2]
+                );
+      glVertex3f( mVertexData.at(mIndexData.at(i + 1)).position[0]
+                , mVertexData.at(mIndexData.at(i + 1)).position[1]
+                , mVertexData.at(mIndexData.at(i + 1)).position[2]
+                );
+      glVertex3f( mVertexData.at(mIndexData.at(i + 2)).position[0]
+                , mVertexData.at(mIndexData.at(i + 2)).position[1]
+                , mVertexData.at(mIndexData.at(i + 2)).position[2]
+                );
+    }
+  glEnd();
 }
 
 float MeshObj::getWidth(void) {
