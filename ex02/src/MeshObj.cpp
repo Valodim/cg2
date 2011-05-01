@@ -20,6 +20,8 @@ void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<u
   // TODO: compute the loaded meshes bounds that may be used later on and store them in mMinBounds, mMaxBounds resp. //
   
   // TODO: COPY the data from vertexData and indexData in own data vectors mVertexData and mIndexData //
+  mVertexData = std::vector< Vertex >(vertexData);
+  mIndexData = std::vector< unsigned int >(indexData);
 }
 
 void MeshObj::render(void) {
