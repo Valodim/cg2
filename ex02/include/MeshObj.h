@@ -44,6 +44,7 @@ class MeshObj {
     
     float mMinBounds[3];
     float mMaxBounds[3];
+    float mExtents[3];
 };
 
 #endif
