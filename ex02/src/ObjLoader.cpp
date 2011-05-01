@@ -83,7 +83,7 @@ bool ObjLoader::parseObjFile(std::string const &fileName, std::vector<Vertex> &v
 
                 // Save in vertexList
                 vertexList.push_back(Vertex(x, y, z));
-                std::cout << "line " << lineno << ": got a vertex: " << x << ", " << y << ", " << z << std::endl;
+                //std::cout << "line " << lineno << ": got a vertex: " << x << ", " << y << ", " << z << std::endl;
                 break;
             case 'f':
                 // Expecting three index ints for a face
@@ -99,7 +99,7 @@ bool ObjLoader::parseObjFile(std::string const &fileName, std::vector<Vertex> &v
                 indexList.push_back(f1 -1);
                 indexList.push_back(f2 -1);
                 indexList.push_back(f3 -1);
-                std::cout << "line " << lineno << ": got a face: " << f1 << ", " << f2 << ", " << f3 << std::endl;
+                //std::cout << "line " << lineno << ": got a face: " << f1 << ", " << f2 << ", " << f3 << std::endl;
                 break;
 
             case 'o': // Material / Object
