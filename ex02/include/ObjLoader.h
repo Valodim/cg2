@@ -14,6 +14,8 @@ class ObjLoader {
     MeshObj* getMeshObj(std::string ID);
   private:
     std::map<std::string, MeshObj*> mMeshMap;
+
+    bool parseObjFile(std::string const &fileName, std::vector<Vertex> &vertexList, std::vector<unsigned int> &indexList) const;
 };
 
 #endif
