@@ -54,7 +54,9 @@ int main (int argc, char **argv) {
   glutReshapeFunc(resizeGL);
   glutDisplayFunc(updateGL);
   glutIdleFunc(idle);
-  // TODO: connect callback functions for keyboard and mouse events //
+  glutKeyboardFunc(keyboardEvent);
+  glutMouseFunc(mouseEvent);
+  glutMotionFunc(mouseMoveEvent);
   
   initGL();
   
@@ -105,8 +107,7 @@ void updateGL() {
   // reset all transformations //
   glLoadIdentity();
   
-  // TODO: use your trackball to rotate the view here, i.e. call the rotateView() method of your trackball //
-  
+  trackball.rotateView();
   renderTextFile(fileName);
   // swap render buffer and screen buffer //
   glutSwapBuffers();
@@ -135,7 +136,18 @@ void keyboardEvent(unsigned char key, int x, int y) {
       exit(0);
       break;
     }
-    // TODO: add code processing intended movement (forward, backward, left, right) and update the trackball accordingly //
+    case 'w':
+      trackball.updateOffset(Trackball::MOVE_FORWARD);
+      break;
+    case 's':
+      trackball.updateOffset(Trackball::MOVE_BACKWARD);
+      break;
+    case 'a':
+      trackball.updateOffset(Trackball::MOVE_LEFT);
+      break;
+    case 'd':
+      trackball.updateOffset(Trackball::MOVE_RIGHT);
+      break;
   }
   // tell OpenGL to redraw everything since the viewport has changed //
   glutPostRedisplay();
@@ -143,12 +155,23 @@ void keyboardEvent(unsigned char key, int x, int y) {
 
 void mouseEvent(int button, int state, int x, int y) {
   // this method is triggered whenever a mouse button is pressed or released //
-  // TODO: forward events to the trackball //
+  switch(state) {
+    case GLUT_UP:
+      trackball.updateMouseBtn(Trackball::NO_BTN, x, y);
+      break;
+    case GLUT_DOWN:
+      switch(button) {
+        case GLUT_LEFT_BUTTON:
+          trackball.updateMouseBtn(Trackball::LEFT_BTN, x, y);
+          break;
+      }
+      break;
+  }
 }
 
 void mouseMoveEvent(int x, int y) {
   // this method is triggered whenever the mouse is moved //
-  // TODO: forward movement to the trackball to control viewing changes //
+  trackball.updateMousePos(x, y);
 }
 
 void renderTextFile(const char *fileName) {
