@@ -4,7 +4,7 @@
 #include <GL/glut.h>
 #include <cmath>
 
-#define STEP_DISTANCE 0.05f
+#define STEP_DISTANCE 0.30f
 
 class Trackball {
   public:
