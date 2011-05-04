@@ -22,6 +22,11 @@ class Trackball {
     void rotateView(void);
     
     void getCameraPosition(float &x, float &y, float &z);
+    void setCameraPosition(float x, float y, float z) {
+        mViewOffset[0] = x;
+        mViewOffset[1] = y;
+        mViewOffset[2] = z;
+    }
     
   private:
     float mViewOffset[3];

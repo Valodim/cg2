@@ -35,13 +35,13 @@ GLint windowWidth, windowHeight;
 GLfloat zNear, zFar;
 GLfloat fov;
 
-// TODO: create two separate trackballs here - one for the 1st person camera and one for the 3rd person camera //
+// create two separate trackballs here - one for the 1st person camera and one for the 3rd person camera //
 // you may initialize each trackball with an initial viewing direction and offset to (0,0,0) //
 
 // init objLoader //
 ObjLoader objLoader;
 
-Trackball* tb1;
+Trackball *tb1, *tb2;
 
 // materials //
 
@@ -105,6 +105,8 @@ int main (int argc, char **argv) {
     glutMotionFunc(mouseMoveEvent);
 
     tb1 = new Trackball(0, 0, 20);
+    tb2 = new Trackball(0, 0, 20);
+    tb2->setCameraPosition(1.0f, 11.0f, 40.0f);
 
     initGL();
 
@@ -148,19 +150,20 @@ void updateGL() {
 
     // render left viewport (actual camera view / 1st person camera) //
 
-    // TODO: enable lighting and smooth rendering here //
+    // enable lighting and smooth rendering here //
     glShadeModel(GL_SMOOTH);
     glEnable(GL_LIGHTING);
     glEnable(GL_COLOR_MATERIAL);
 
-    // TODO: setup the viewport for the 1st person camera view here -> use the left half of the window //
-
+    // setup the viewport for the 1st person camera view here -> use the left half of the window //
+    glViewport(0, 0, viewportWidth, viewportHeight);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     // setup the camera's frustum here using gluPerspective (use the parameters fov, aspectRatio, zNear and zFar, which are already defined) //
-    gluPerspective(fov, 1.8, zNear, zFar);
-    // TODO: save the current projection matrix for later use when rendering the 3rd person view //
+    gluPerspective(fov, aspectRatio, zNear, zFar);
+    // save the current projection matrix for later use when rendering the 3rd person view //
+    glGetFloatv(GL_PROJECTION_MATRIX, projectionMatrix);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -172,7 +175,7 @@ void updateGL() {
     // will not be transformed by any following modelview transformations when arranging the scene //
     GLfloat c0_pos[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     // use the camera's own position to place the light in the scene //
-    tb1->getCameraPosition(c0_pos[0], c0_pos[1], c0_pos[2]);
+    // tb1->getCameraPosition(c0_pos[0], c0_pos[1], c0_pos[2]);
 
     // load light properties from the definitions at the top of this file //
     GLfloat c0_ambient[] = { 0.3f, 0.3f, 0.3f, 0.3f };
@@ -189,7 +192,14 @@ void updateGL() {
     // now rotate the view according to the camera's trackball //
     tb1->rotateView();
 
+    // save your current modelview matrix here //
+    glGetFloatv(GL_MODELVIEW_MATRIX, modelviewMatrix);
+
     // init light in world space (scene-fixed position) //
+
+    // this time the lightsource will be affected by the view-rotation of the camera //
+    // and is therefore fixed in the observed scene //
+    // use the position and light parameters of the second lightsource defined above //
     GLfloat c1_pos[] = { 10.0f, 10.0f, 10.0, 1.0f  };
     GLfloat c1_ambient[] = { 0.0f, 0.0f, 0.0f, 0.6f };
     GLfloat c1_diffuse[] = { 0.8f, 0.0f, 0.0f, 0.6f };
@@ -200,50 +210,76 @@ void updateGL() {
     glLightfv(GL_LIGHT1, GL_SPECULAR, c1_specular);
     glEnable(GL_LIGHT1);
 
-    // this time the lightsource will be affected by the view-rotation of the camera //
-    // and is therefore fixed in the observed scene //
-    // use the position and light parameters of the second lightsource defined above //
-
-    // save your current modelview matrix here //
-    glGetFloatv(GL_MODELVIEW_MATRIX, modelviewMatrix);
-
     // now we render the actual scene //
     renderScene();
 
-
     // now that we are done rendering the left viewport let's continue with the right one //
 
-    // TODO: setup the viewport to the second half of the window //
+    // setup the viewport to the second half of the window //
+    glViewport(viewportWidth, 0, viewportWidth, viewportHeight);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    // TODO: again setup the 3rd person camera frustum here //
+
+    // again setup the 3rd person camera frustum here //
     // but instead of using the values fov, zNear and zFar, use an opening angle of 45 deg, a near plane at 0.1f and the far plane at 1000 //
     // this is because the parameters used above should control only the first viewport and not the world space preview //
+    gluPerspective(45.0f, aspectRatio, 0.1f, 1000.0f);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    // TODO: rotate your view using the world space trackball //
+
+    // rotate your view using the world space trackball //
+    tb2->rotateView();
 
     // render scene //
-    // TODO: render the same scene with the exact same lighting (world-space lighting) as before //
+    // render the same scene with the exact same lighting (world-space lighting) as before //
+    renderScene();
 
     // render camera //
-    // TODO: now, to visualize the 1st person camera's position in world space, render a MeshObj at the camera's position //
+
+    // also: DISABLE any lighting from now on //
+    // you may choose a plain color for the camera model //
+    glDisable(GL_LIGHTING);
+
+    // now, to visualize the 1st person camera's position in world space, render a MeshObj at the camera's position //
     // hint: we have saved the camera's position relative to the scene in the modelview matrix //
     // -> make use of this matrix to place your camera model //
-    // also: DISABLE any lighting from now on //
-    glDisable(GL_LIGHTING);
-    // you may choose a plain color for the camera model //
+    glPushMatrix(); {
 
-    // render frustum //
-    GLfloat frustumCorners[8][3] = {{-1,-1,-1},{ 1,-1,-1},{ 1, 1,-1},{-1, 1,-1},
-        {-1,-1, 1},{ 1,-1, 1},{ 1, 1, 1},{-1, 1, 1}};
-    // TODO: now we want to render a visualization of our camera's frustum (the one used in the left viewport) //
-    // use the already given unit-cube given by frustumCorners to render GL_LINES for the frustums edges //
-    // to transform the cube into the actual frustum you need to make use of the previously saved projection matrix //
-    // hint: you also need the modelview matrix to place the frustum correctly (like you placed your camera model) //
-    // after correct transformation render the edges of the frustum //
+        invertRotTransMat(modelviewMatrix, modelviewMatrix_inv);
+        glMultMatrixf(modelviewMatrix_inv);
+
+        glColor3f(0.8f, 0.8f, 0.8f);
+        objLoader.getMeshObj("camera")->render();
+
+        // render frustum //
+        GLfloat frustumCorners[8][3] = {{-1,-1,-1},{ 1,-1,-1},{ 1, 1,-1},{-1, 1,-1},
+            {-1,-1, 1},{ 1,-1, 1},{ 1, 1, 1},{-1, 1, 1}};
+
+        invertProjectionMat(projectionMatrix, projectionMatrix_inv);
+        glMultMatrixf(projectionMatrix_inv);
+
+        // now we want to render a visualization of our camera's frustum (the one used in the left viewport) //
+        // use the already given unit-cube given by frustumCorners to render GL_LINES for the frustums edges //
+        // to transform the cube into the actual frustum you need to make use of the previously saved projection matrix //
+        // hint: you also need the modelview matrix to place the frustum correctly (like you placed your camera model) //
+        // after correct transformation render the edges of the frustum //
+        glBegin(GL_LINE_LOOP); {
+            glColor3f(0.0f, 0.0f, 1.0f);
+            for(int i = 0; i < 4; i++)
+                glVertex3fv(frustumCorners[i+4]);
+        } glEnd();
+
+        glBegin(GL_LINES); {
+            glColor3f(1.0f, 1.0f, 0.0f);
+            for(int i = 0; i < 4; i++) {
+                glVertex3fv(frustumCorners[i+0]);
+                glVertex3fv(frustumCorners[i+4]);
+            }
+        } glEnd();
+
+    } glPopMatrix();
 
     // swap render and screen buffer //
     glutSwapBuffers();
@@ -360,7 +396,13 @@ void keyboardEvent(unsigned char key, int x, int y) {
                       tb1->updateOffset(Trackball::MOVE_RIGHT);
                       break;
                   }
-        case 'z': {
+        case 'x': {
+                      GLfloat cam_pos[] = { 0.0f, 0.0f, 0.0f } ;
+                      tb1->getCameraPosition(cam_pos[0], cam_pos[1], cam_pos[2]);
+                      std::cout << "x: " << cam_pos[0] << ", y: " << cam_pos[1] << ", z: " << cam_pos[2] << std::endl;
+                      break;
+                  }
+        case 'y': {
                       fov += 0.1f;
                       break;
                   }
