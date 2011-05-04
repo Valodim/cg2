@@ -232,23 +232,28 @@ void updateGL() {
     // rotate your view using the world space trackball //
     tb2->rotateView();
 
-    // render scene //
-    // render the same scene with the exact same lighting (world-space lighting) as before //
-    renderScene();
+    glPushMatrix(); {
+        invertRotTransMat(modelviewMatrix, modelviewMatrix_inv);
+        glMultMatrixf(modelviewMatrix_inv);
+
+    } glPopMatrix();
 
     // render camera //
-
-    // also: DISABLE any lighting from now on //
-    // you may choose a plain color for the camera model //
-    glDisable(GL_LIGHTING);
 
     // now, to visualize the 1st person camera's position in world space, render a MeshObj at the camera's position //
     // hint: we have saved the camera's position relative to the scene in the modelview matrix //
     // -> make use of this matrix to place your camera model //
     glPushMatrix(); {
 
+        // also: DISABLE any lighting from now on //
+        // you may choose a plain color for the camera model //
+        glDisable(GL_LIGHTING);
+
         invertRotTransMat(modelviewMatrix, modelviewMatrix_inv);
         glMultMatrixf(modelviewMatrix_inv);
+
+        glLightfv(GL_LIGHT0, GL_POSITION, c0_pos);
+        glEnable(GL_LIGHT0);
 
         glColor3f(0.8f, 0.8f, 0.8f);
         objLoader.getMeshObj("camera")->render();
@@ -279,7 +284,18 @@ void updateGL() {
             }
         } glEnd();
 
+        // also: DISABLE any lighting from now on //
+        // you may choose a plain color for the camera model //
+        glEnable(GL_LIGHTING);
+
+        glLightfv(GL_LIGHT0, GL_POSITION, c0_pos);
+
     } glPopMatrix();
+
+    glLightfv(GL_LIGHT1, GL_POSITION, c1_pos);
+    // render scene //
+    // render the same scene with the exact same lighting (world-space lighting) as before //
+    renderScene();
 
     // swap render and screen buffer //
     glutSwapBuffers();
