@@ -30,6 +30,8 @@ void invertProjectionMat(float *mat, float *inv);
 // TODO: implement the rendering of the scene below //
 void renderScene();
 
+bool activewin;
+
 // these varables control the viewport size and the frustum parameters //
 GLint windowWidth, windowHeight;
 GLfloat zNear, zFar;
@@ -173,9 +175,8 @@ void updateGL() {
     // init a light fixed to the camera's position here //
     // since we define the lights position 'before' any other transformations, the lights position //
     // will not be transformed by any following modelview transformations when arranging the scene //
-    GLfloat c0_pos[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     // use the camera's own position to place the light in the scene //
-    // tb1->getCameraPosition(c0_pos[0], c0_pos[1], c0_pos[2]);
+    GLfloat c0_pos[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
     // load light properties from the definitions at the top of this file //
     GLfloat c0_ambient[] = { 0.3f, 0.3f, 0.3f, 0.3f };
@@ -375,7 +376,7 @@ void renderScene() {
 }
 
 void idle() {
-    glutPostRedisplay();
+    // glutPostRedisplay();
 }
 
 void resizeGL(int w, int h) {
@@ -394,27 +395,27 @@ void keyboardEvent(unsigned char key, int x, int y) {
                   }
         case 'w': {
                       // move forward //
-                      tb1->updateOffset(Trackball::MOVE_FORWARD);
+                      (activewin ? tb1 : tb2)->updateOffset(Trackball::MOVE_FORWARD);
                       break;
                   }
         case 's': {
                       // move backward //
-                      tb1->updateOffset(Trackball::MOVE_BACKWARD);
+                      (activewin ? tb1 : tb2)->updateOffset(Trackball::MOVE_BACKWARD);
                       break;
                   }
         case 'a': {
                       // move left //
-                      tb1->updateOffset(Trackball::MOVE_LEFT);
+                      (activewin ? tb1 : tb2)->updateOffset(Trackball::MOVE_LEFT);
                       break;
                   }
         case 'd': {
                       // move right //
-                      tb1->updateOffset(Trackball::MOVE_RIGHT);
+                      (activewin ? tb1 : tb2)->updateOffset(Trackball::MOVE_RIGHT);
                       break;
                   }
         case 'x': {
                       GLfloat cam_pos[] = { 0.0f, 0.0f, 0.0f } ;
-                      tb1->getCameraPosition(cam_pos[0], cam_pos[1], cam_pos[2]);
+                      (activewin ? tb1 : tb2)->getCameraPosition(cam_pos[0], cam_pos[1], cam_pos[2]);
                       std::cout << "x: " << cam_pos[0] << ", y: " << cam_pos[1] << ", z: " << cam_pos[2] << std::endl;
                       break;
                   }
@@ -467,12 +468,16 @@ void mouseEvent(int button, int state, int x, int y) {
     } else {
         mouseState = Trackball::NO_BTN;
     }
-    tb1->updateMouseBtn(mouseState, x, y);
+    activewin = x < windowWidth / 2;
+    (activewin ? tb1 : tb2)->updateMouseBtn(mouseState, x, y);
+
+    glutPostRedisplay();
 }
 
 void mouseMoveEvent(int x, int y) {
     // TODO: determine, which trackball should be updated //
-    tb1->updateMousePos(x, y);
+    (activewin ? tb1 : tb2)->updateMousePos(x, y);
+    glutPostRedisplay();
 }
 
 /** inverts transformation matrices only consisting of rotations and translations **/
