@@ -264,26 +264,28 @@ void updateGL() {
             {-1,-1, 1},{ 1,-1, 1},{ 1, 1, 1},{-1, 1, 1}};
 
         invertProjectionMat(projectionMatrix, projectionMatrix_inv);
-        glMultMatrixf(projectionMatrix_inv);
+        glPushMatrix(); {
+            glMultMatrixf(projectionMatrix_inv);
 
-        // now we want to render a visualization of our camera's frustum (the one used in the left viewport) //
-        // use the already given unit-cube given by frustumCorners to render GL_LINES for the frustums edges //
-        // to transform the cube into the actual frustum you need to make use of the previously saved projection matrix //
-        // hint: you also need the modelview matrix to place the frustum correctly (like you placed your camera model) //
-        // after correct transformation render the edges of the frustum //
-        glBegin(GL_LINE_LOOP); {
-            glColor3f(0.0f, 0.0f, 1.0f);
-            for(int i = 0; i < 4; i++)
-                glVertex3fv(frustumCorners[i+4]);
-        } glEnd();
+            // now we want to render a visualization of our camera's frustum (the one used in the left viewport) //
+            // use the already given unit-cube given by frustumCorners to render GL_LINES for the frustums edges //
+            // to transform the cube into the actual frustum you need to make use of the previously saved projection matrix //
+            // hint: you also need the modelview matrix to place the frustum correctly (like you placed your camera model) //
+            // after correct transformation render the edges of the frustum //
+            glBegin(GL_LINE_LOOP); {
+                glColor3f(0.0f, 0.0f, 1.0f);
+                for(int i = 0; i < 4; i++)
+                    glVertex3fv(frustumCorners[i+4]);
+            } glEnd();
 
-        glBegin(GL_LINES); {
-            glColor3f(1.0f, 1.0f, 0.0f);
-            for(int i = 0; i < 4; i++) {
-                glVertex3fv(frustumCorners[i+0]);
-                glVertex3fv(frustumCorners[i+4]);
-            }
-        } glEnd();
+            glBegin(GL_LINES); {
+                glColor3f(1.0f, 1.0f, 0.0f);
+                for(int i = 0; i < 4; i++) {
+                    glVertex3fv(frustumCorners[i+0]);
+                    glVertex3fv(frustumCorners[i+4]);
+                }
+            } glEnd();
+        } glPopMatrix();
 
         // also: DISABLE any lighting from now on //
         // you may choose a plain color for the camera model //
