@@ -467,12 +467,13 @@ void mouseEvent(int button, int state, int x, int y) {
                                      }
             default : break;
         }
+        activewin = x < windowWidth / 2;
+
     } else {
         mouseState = Trackball::NO_BTN;
     }
-    activewin = x < windowWidth / 2;
-    (activewin ? tb1 : tb2)->updateMouseBtn(mouseState, x, y);
 
+    (activewin ? tb1 : tb2)->updateMouseBtn(mouseState, x, y);
     glutPostRedisplay();
 }
 
