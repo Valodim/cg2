@@ -155,7 +155,7 @@ void updateGL() {
     // enable lighting and smooth rendering here //
     glShadeModel(GL_SMOOTH);
     glEnable(GL_LIGHTING);
-    glEnable(GL_COLOR_MATERIAL);
+    // glEnable(GL_COLOR_MATERIAL);
 
     // setup the viewport for the 1st person camera view here -> use the left half of the window //
     glViewport(0, 0, viewportWidth, viewportHeight);
@@ -254,7 +254,6 @@ void updateGL() {
         glMultMatrixf(modelviewMatrix_inv);
 
         glLightfv(GL_LIGHT0, GL_POSITION, c0_pos);
-        glEnable(GL_LIGHT0);
 
         glColor3f(0.8f, 0.8f, 0.8f);
         objLoader.getMeshObj("camera")->render();
@@ -370,7 +369,7 @@ void renderScene() {
 
     glPushMatrix();
     glTranslatef(0.0f, 4.905f, -1.732f);
-    glutSolidSphere(3.0f, 1000, 1000);
+    glutSolidSphere(3.0f, 1000, 100);
     glPopMatrix();
 
     // use a radius of 3 for all spheres, choose the stacks and slices parameters so that the spheres appear smooth //
