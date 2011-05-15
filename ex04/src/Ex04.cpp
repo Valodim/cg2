@@ -90,19 +90,33 @@ void initGL() {
 }
 
 void initShader() {
-  // TODO: create a new shader program here and assign it to 'shaderProgram'      //
-  
-  // TODO: use 'loadShaderSource' to load your vertex and fragment shader sources //
-  //       create your shaders and attach them to yout shader program             //
-  //       finally link your program to be able to use it whenever you want it    //
-  
-  // TODO: init your uniform variables used in the shader                         //
-  //       bind them to 'uniform_innerSpotAngle' and 'uniform_outerSpotAngle'     //
-  //       make sure to use the EXACT same uniform name as in your shader file    //
+  // create a new shader program here and assign it to 'shaderProgram'      //
+  shaderProgram = glCreateProgram();
+  // use 'loadShaderSource' to load your vertex and fragment shader sources //
+  // create your shaders and attach them to yout shader program             //
+  // finally link your program to be able to use it whenever you want it    //
+  const char *vertexShaderSource = loadShaderSource("./vertex.glsl");
+  const char *fragmentShaderSource = loadShaderSource("./fragment.glsl");
+  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+  glCompileShader(vertexShader);
+  glCompileShader(fragmentShader);
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+  glUseProgram(shaderProgram);
+  // init your uniform variables used in the shader                         //
+  // bind them to 'uniform_innerSpotAngle' and 'uniform_outerSpotAngle'     //
+  // make sure to use the EXACT same uniform name as in your shader file    //
+  uniform_innerSpotAngle = glGetUniformLocation(shaderProgram, "innerSpotAngle");
+  uniform_outerSpotAngle = glGetUniformLocation(shaderProgram, "outerSpotAngle");
+  glUniform1f(uniform_innerSpotAngle, innerAngle);
+  glUniform1f(uniform_outerSpotAngle, outerAngle);
 }
 
 void updateGL() {
-  // TODO: enable your shader program if not active yet //
   GLfloat aspectRatio = (GLfloat)windowWidth / windowHeight;
   
   // clear renderbuffer //
@@ -119,10 +133,11 @@ void updateGL() {
   
   trackball.rotateView();
   
-  // TODO: update your uniform variables //
-  
-  // TODO: render your scene //
-  
+  // update your uniform variables //
+  glUniform1f(uniform_innerSpotAngle, innerAngle);
+  glUniform1f(uniform_outerSpotAngle, outerAngle);
+  // render your scene //
+  objLoader.getMeshObj("scene")->render();
   // swap render and screen buffer //
   glutSwapBuffers();
 }
