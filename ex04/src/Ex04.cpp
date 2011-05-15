@@ -114,6 +114,16 @@ void initShader() {
   uniform_outerSpotAngle = glGetUniformLocation(shaderProgram, "outerSpotAngle");
   glUniform1f(uniform_innerSpotAngle, innerAngle);
   glUniform1f(uniform_outerSpotAngle, outerAngle);
+  int programLogLength = 0;
+  glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &programLogLength);
+  char *programLog = new char[programLogLength];
+  glGetProgramInfoLog(shaderProgram, programLogLength, NULL, programLog);
+  std::cerr << ">>> shader program log" << std::endl
+            << programLog << std::endl
+            << "<<< shader program log end" << std::endl;
+  delete[] programLog;
+  programLog = NULL;
+  programLogLength = 0;
 }
 
 void updateGL() {
