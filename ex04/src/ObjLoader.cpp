@@ -87,10 +87,54 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID) {
 }
 
 void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::vector<unsigned int> &indexList) {
-  // TODO: iterate over all faces defined by the indexList vector (index triplets define one face)   //
-  //       compute a normal for every face
-  //       accumulate these face normals for every incident vertex to a particular face
-  //       finally normalize all vertex normals
+  // iterate over all faces defined by the indexList vector (index triplets define one face)   //
+  // compute a normal for every face
+  // accumulate these face normals for every incident vertex to a particular face
+  // finally normalize all vertex normals
+  std::vector< vec3f_t > faceNormals;
+  for(unsigned int i = 0; i < indexList.size(); i += 3) {
+    vec3f_t edge0;
+    vec3f_t edge1;
+    vec3f_t normal;
+    // Calculate two edges of triangle:
+    edge0.x = vertexList.at(indexList.at(i + 1)).position[0] - vertexList.at(indexList.at(i + 0)).position[0];
+    edge0.y = vertexList.at(indexList.at(i + 1)).position[1] - vertexList.at(indexList.at(i + 0)).position[1];
+    edge0.z = vertexList.at(indexList.at(i + 1)).position[2] - vertexList.at(indexList.at(i + 0)).position[2];
+    edge1.x = vertexList.at(indexList.at(i + 2)).position[0] - vertexList.at(indexList.at(i + 0)).position[0];
+    edge1.y = vertexList.at(indexList.at(i + 2)).position[1] - vertexList.at(indexList.at(i + 0)).position[1];
+    edge1.z = vertexList.at(indexList.at(i + 2)).position[2] - vertexList.at(indexList.at(i + 0)).position[2];
+    // Use these for face normal calculation via the cross product:
+    normal.x = edge0.y * edge1.z - edge0.z * edge1.y;
+    normal.y = edge0.z * edge1.x - edge0.x * edge1.z;
+    normal.z = edge0.x * edge1.y - edge0.y * edge1.x;
+    // Normalize normal:
+    float length = std::sqrt(std::pow(normal.x, 2) + std::pow(normal.y, 2) + std::pow(normal.z, 2));
+    normal.x /= length;
+    normal.y /= length;
+    normal.z /= length;
+    faceNormals.push_back(normal);
+  }
+  for(std::vector< unsigned int >::size_type i = 0; i < indexList.size(); i++) {
+    Vertex &v = vertexList.at(indexList.at(i));
+    if(v.normal[0] == 0 && v.normal[1] == 0 && v.normal[2] == 0) {
+    	v.normal[0] = faceNormals.at(i / 3).x;
+    	v.normal[1] = faceNormals.at(i / 3).y;
+    	v.normal[2] = faceNormals.at(i / 3).z;
+    }
+    else {
+    	v.normal[0] = (v.normal[0] + faceNormals.at(i / 3).x) / 2;
+    	v.normal[1] = (v.normal[1] + faceNormals.at(i / 3).y) / 2;
+    	v.normal[2] = (v.normal[2] + faceNormals.at(i / 3).z) / 2;
+    }
+  }
+  for(std::vector< Vertex >::size_type i = 0; i < vertexList.size(); i++) {
+    // Normalize normal:
+    Vertex &v = vertexList.at(i);
+    float length = std::sqrt(std::pow(v.normal[0], 2) + std::pow(v.normal[1], 2) + std::pow(v.normal[2], 2));
+    v.normal[0] /= length;
+    v.normal[1] /= length;
+    v.normal[2] /= length;
+  }
 }
 
 MeshObj* ObjLoader::getMeshObj(std::string ID) {

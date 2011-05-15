@@ -16,6 +16,12 @@ class ObjLoader {
     void reconstructNormals(std::vector<Vertex> &vertexList, const std::vector<unsigned int> &indexList);
     
     std::map<std::string, MeshObj*> mMeshMap;
+
+    typedef struct {
+    	float x;
+    	float y;
+    	float z;
+    } vec3f_t;
 };
 
 #endif
