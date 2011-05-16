@@ -91,8 +91,7 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
   // compute a normal for every face
   // accumulate these face normals for every incident vertex to a particular face
   // finally normalize all vertex normals
-  std::vector< vec3f_t > faceNormals;
-  for(unsigned int i = 0; i < indexList.size(); i += 3) {
+  for(std::vector< unsigned int >::size_type i = 0; i < indexList.size(); i += 3) {
     vec3f_t edge0;
     vec3f_t edge1;
     vec3f_t normal;
@@ -112,19 +111,11 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
     normal.x /= length;
     normal.y /= length;
     normal.z /= length;
-    faceNormals.push_back(normal);
-  }
-  for(std::vector< unsigned int >::size_type i = 0; i < indexList.size(); i++) {
-    Vertex &v = vertexList.at(indexList.at(i));
-    if(v.normal[0] == 0 && v.normal[1] == 0 && v.normal[2] == 0) {
-    	v.normal[0] = faceNormals.at(i / 3).x;
-    	v.normal[1] = faceNormals.at(i / 3).y;
-    	v.normal[2] = faceNormals.at(i / 3).z;
-    }
-    else {
-    	v.normal[0] = (v.normal[0] + faceNormals.at(i / 3).x) / 2;
-    	v.normal[1] = (v.normal[1] + faceNormals.at(i / 3).y) / 2;
-    	v.normal[2] = (v.normal[2] + faceNormals.at(i / 3).z) / 2;
+    for(unsigned int j = 0; j < 3; j++) {
+      Vertex &v = vertexList.at(indexList.at(i + j));
+      v.normal[0] += normal.x;
+      v.normal[1] += normal.y;
+      v.normal[2] += normal.z;
     }
   }
   for(std::vector< Vertex >::size_type i = 0; i < vertexList.size(); i++) {
