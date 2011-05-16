@@ -41,8 +41,8 @@ void MeshObj::render(void) {
   for (std::vector<unsigned int>::iterator indexIter = mIndexData.begin(); indexIter != mIndexData.end(); ++indexIter) {
     // render indexed vertex //
     // pass normals to GPU too //
-    glVertex3f(mVertexData[*indexIter].position[0], mVertexData[*indexIter].position[1], mVertexData[*indexIter].position[2]);
     glNormal3f(mVertexData[*indexIter].normal[0], mVertexData[*indexIter].normal[1], mVertexData[*indexIter].normal[2]);
+    glVertex3f(mVertexData[*indexIter].position[0], mVertexData[*indexIter].position[1], mVertexData[*indexIter].position[2]);
   }
   // stop rendering geometry //
   glEnd();
