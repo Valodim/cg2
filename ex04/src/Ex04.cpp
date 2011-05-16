@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 #include "MeshObj.h"
 #include "ObjLoader.h"
@@ -112,8 +113,8 @@ void initShader() {
   // make sure to use the EXACT same uniform name as in your shader file    //
   uniform_innerSpotAngle = glGetUniformLocation(shaderProgram, "innerSpotAngle");
   uniform_outerSpotAngle = glGetUniformLocation(shaderProgram, "outerSpotAngle");
-  glUniform1f(uniform_innerSpotAngle, innerAngle);
-  glUniform1f(uniform_outerSpotAngle, outerAngle);
+  glUniform1f(uniform_innerSpotAngle, M_PI * innerAngle / 180.0);
+  glUniform1f(uniform_outerSpotAngle, M_PI * outerAngle / 180.0);
   int programLogLength = 0;
   glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &programLogLength);
   char *programLog = new char[programLogLength];
@@ -144,8 +145,8 @@ void updateGL() {
   trackball.rotateView();
   
   // update your uniform variables //
-  glUniform1f(uniform_innerSpotAngle, innerAngle);
-  glUniform1f(uniform_outerSpotAngle, outerAngle);
+  glUniform1f(uniform_innerSpotAngle, M_PI * innerAngle / 180.0);
+  glUniform1f(uniform_outerSpotAngle, M_PI * outerAngle / 180.0);
   // render your scene //
   objLoader.getMeshObj("scene")->render();
   // swap render and screen buffer //
