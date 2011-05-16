@@ -1,10 +1,9 @@
-varying vec3 normal, lightDirection, eyeDirection;
+varying vec3 normal, eyeDirection;
 
 void main() {
-	gl_Position = ftransform();
+	gl_Position = (gl_ProjectionMatrix * gl_ModelViewMatrix) * gl_Vertex;
 
 	normal = gl_NormalMatrix * gl_Normal;
-	vec3 pos = (gl_ModelViewMatrix * gl_Vertex).xyz;
-	lightDirection = gl_LightSource[0].position.xyz - pos;
-	eyeDirection = -pos;
+	vec4 pos = gl_ModelViewMatrix * gl_Vertex;
+	eyeDirection = -(pos.xyz);
 }
