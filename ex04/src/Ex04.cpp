@@ -96,8 +96,8 @@ void initShader() {
   // use 'loadShaderSource' to load your vertex and fragment shader sources //
   // create your shaders and attach them to yout shader program             //
   // finally link your program to be able to use it whenever you want it    //
-  const char *vertexShaderSource = loadShaderSource("./vertex.glsl");
-  const char *fragmentShaderSource = loadShaderSource("./fragment.glsl");
+  const char *vertexShaderSource = loadShaderSource("./shaders/vertex.glsl");
+  const char *fragmentShaderSource = loadShaderSource("./shaders/fragment.glsl");
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
