@@ -112,9 +112,9 @@ Vector crossProduct(const Vector a, const Vector b) {
 
     Vector norm;
 
-    norm.x = a.y * b.z - a.x * b.y;
-    norm.y = a.z * b.x - a.y * b.z;
-    norm.z = a.x * b.y - a.z * b.x;
+    norm.x = a.y * b.z - a.z * b.y;
+    norm.y = a.z * b.x - a.x * b.z;
+    norm.z = a.x * b.y - a.y * b.x;
 
     return norm;
 
@@ -133,9 +133,6 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
     //       compute a normal for every face
     //       accumulate these face normals for every incident vertex to a particular face
     //       finally normalize all vertex normals
-    std::vector<Vector> faceNormals;
-    faceNormals.resize(indexList.size() / 3);
-
     for(int i = 0; i < indexList.size(); i += 3) {
 
         // Get three points
@@ -148,28 +145,30 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
         Vector v2 = Vector( vex3.position[0] - vex1.position[0], vex3.position[1] - vex1.position[1], vex3.position[2] - vex1.position[2] );
 
         // save face normal = Kreuzprodukt between vectors normal of the face)
-        faceNormals[i/3] = crossProduct(v1, v2);
+        Vector n = crossProduct(v1, v2);
+        normalizeVector(&n);
+
+        vertexList[indexList[i+0]].normal[0] += n.x;
+        vertexList[indexList[i+0]].normal[1] += n.y;
+        vertexList[indexList[i+0]].normal[2] += n.z;
+
+        vertexList[indexList[i+1]].normal[0] += n.x;
+        vertexList[indexList[i+1]].normal[1] += n.y;
+        vertexList[indexList[i+1]].normal[2] += n.z;
+
+        vertexList[indexList[i+2]].normal[0] += n.x;
+        vertexList[indexList[i+2]].normal[1] += n.y;
+        vertexList[indexList[i+2]].normal[2] += n.z;
 
     }
 
-    std::vector< std::list<unsigned int> > relevantFaces;
-    relevantFaces.resize(vertexList.size());
-    for(int i = 0; i < indexList.size(); i += 3) {
-        relevantFaces[indexList[i+0]].push_back(i/3);
-        relevantFaces[indexList[i+1]].push_back(i/3);
-        relevantFaces[indexList[i+2]].push_back(i/3);
-    }
-
+    // Normalize normals for each vertex
     for(int i = 0; i < vertexList.size(); i++) {
-        Vector v = Vector();
-        for(std::list<unsigned int>::iterator it = relevantFaces[i].begin(); it != relevantFaces[i].end(); ++it) {
-            Vector norm = faceNormals[*it];
-            v = v + norm;
-        }
-        normalizeVector(&v);
-        vertexList[i].normal[0] = v.x;
-        vertexList[i].normal[1] = v.y;
-        vertexList[i].normal[2] = v.z;
+        Vertex v = vertexList[i];
+        GLfloat len = sqrt( v.normal[0] * v.normal[0] + v.normal[1] * v.normal[1] + v.normal[2] * v.normal[2] );
+        vertexList[i].normal[0] /= len;
+        vertexList[i].normal[1] /= len;
+        vertexList[i].normal[2] /= len;
     }
 
 }
