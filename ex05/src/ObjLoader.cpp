@@ -150,9 +150,20 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
 
         // TODO: directly split up polygons using 4 vertices into two triangles //
         // Hardcore splitting action going on here
-        if(i == 4)
-            // ...some time.
-            continue;
+        if(i == 4) {
+            // Two faces: one with x1, x2, x3 - the other with x2, x3, x4
+
+            std::cout << "splitting up quad" << std::endl;
+
+            // So that means we add the x2, x3, x4 here, the other one as usual
+            Face f;
+            memcpy(f.vIndex, vi+1, sizeof(unsigned int) * 3);
+            memcpy(f.nIndex, ni+1, sizeof(unsigned int) * 3);
+            memcpy(f.tIndex, ti+1, sizeof(unsigned int) * 3);
+
+            //       add all imported faces to 'localFaceList'                      //
+            localFaceList.push_back(f);
+        }
 
         // Otherwise, it's just a plain old triangle
         Face f;
