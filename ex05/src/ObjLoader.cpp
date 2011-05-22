@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <cassert>
+#include <cstring>
 
 ObjLoader::ObjLoader() {
 }
@@ -15,6 +17,39 @@ ObjLoader::~ObjLoader() {
     iter->second = NULL;
   }
   mMeshMap.clear();
+}
+
+// Splits a string by slashes
+int slashSplit(char* string, char** ret, int max) {
+    // m = ret index
+    // n = string mark
+    // i = running variable
+    int m = 0, n = 0, i = 0;
+    // while there is string
+    while(string[i] != 0 && m < max) {
+        if(string[i] == '/') {
+            ret[m] = new char[i-n+1];
+            // copy string from mark to counter (this may be zero!)
+            strncpy(ret[m++], string+n, i-n);
+            // set new mark
+            n = i+1;
+        }
+        i++;
+    }
+    if(i > n) {
+        ret[m] = new char[i-n+1];
+        strncpy(ret[m++], string+n, i-n);
+    }
+    return m;
+}
+
+int mainn() {
+    char x[] = "a//c/dddd"; // second element is empty!
+    char** ret = new char*[4];
+    int n;
+    n = slashSplit(x, ret, 4);
+    for(int i = 0; i < n; i++)
+        std::cout << i << ": " << ret[i] << std::endl;
 }
 
 MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scale) {
@@ -42,10 +77,12 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
   
   // setup variables used for parsing //
   std::string key;
+  char _;
+  char word[256];
   float x, y, z;
-  int vi[4];
-  int ni[4];
-  int ti[4];
+  unsigned int vi[4];
+  unsigned int ni[4];
+  unsigned int ti[4];
 
   // setup local lists                        //
   // import all data in temporary lists first //
@@ -73,15 +110,60 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
         sstr >> x >> y >> z;
         localVertexList.push_back(Point3D(x * scale, y * scale, z * scale));
       }
-      // TODO: implement parsing of vertex normals and texture coordinates //
-      
+      // XXX: implement parsing of vertex normals and texture coordinates //
+      if (!key.compare("vn")) {
+        // read in vertex //
+        sstr >> x >> y >> z;
+        localNormalList.push_back(Point3D(x * scale, y * scale, z * scale));
+      }
+      if (!key.compare("vt")) {
+        // read in vertex //
+        sstr >> x >> y;
+        localTexCoordList.push_back(Point3D(x * scale, y * scale, 0.0f));
+      }
+
       if (!key.compare("f")) {
-        // TODO: implement a robust method to load a face definition               //
+        // XXX: implement a robust method to load a face definition               //
         //       allowing vertex normals, tecture coordinates, triangles and quads //
+
         // read in vertex indices for a face //
-        
+        int i = 0;
+        for(i = 0; i < 4; i++) {
+            if(sstr.eof())
+                break;
+
+            // Step 1: get one word. this may be either v1, v1/t1/, v1/t1/n1 or v1//n1
+            sstr >> word;
+            char* buf[3];
+            // Step 2: Split up word by /
+            int n = slashSplit(word, buf, 3);
+            std::cout << "dbg: " << buf[0] << ", " << buf[1] << ", " << buf[2] << std::endl;
+            // Step 3: for each element between the /, try to parse the int
+            if(!sscanf(buf[0], "%d", &vi[i]))
+                vi[i] = 0;
+            if(!sscanf(buf[1], "%d", &ti[i]))
+                ti[i] = 0;
+            if(!sscanf(buf[2], "%d", &ni[i]))
+                ni[i] = 0;
+            std::cout << "got " << n << " results: " << vi[i] << ", " << ti[i] << ", " << ni[i] << std::endl;
+        }
+
         // TODO: directly split up polygons using 4 vertices into two triangles //
+        // Hardcore splitting action going on here
+        if(i == 4)
+            // ...some time.
+            continue;
+
+        // Otherwise, it's just a plain old triangle
+        Face f;
+        memcpy(f.vIndex, vi, sizeof(unsigned int) * 3);
+        memcpy(f.nIndex, ni, sizeof(unsigned int) * 3);
+        memcpy(f.tIndex, ti, sizeof(unsigned int) * 3);
+
         //       add all imported faces to 'localFaceList'                      //
+        localFaceList.push_back(f);
+
+      }
     }
     file.close();
     std::cout << "Imported " << localFaceList.size() << " faces from \"" << fileName << "\"" << std::endl;
