@@ -94,7 +94,8 @@ int main (int argc, char **argv) {
 void initGL() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_DEPTH_TEST);
-  
+  glEnable(GL_TEXTURE_2D);
+
   // set projectionmatrix
   glMatrixMode(GL_PROJECTION);
   gluPerspective(fov, 1.0, zNear, zFar);
@@ -197,9 +198,7 @@ void initUniforms(void) {
   glUseProgram(shaderProgram);
 
   // XXX: get your textute-uniform location here //
-  glUniform1i(glGetUniformLocation(shaderProgram, "tex_nearest"), 0);
-  glUniform1i(glGetUniformLocation(shaderProgram, "tex_linear"), 1);
-  glUniform1i(glGetUniformLocation(shaderProgram, "tex_mipmap"), 2);
+  uniform_texture = glGetUniformLocation(shaderProgram, "tex");
 
 }
 
@@ -263,11 +262,13 @@ void updateGL() {
   trackball.rotateView();
   
   // TODO: enable a texture unit, bind your texture and upload it as uniform to your shader //
-  
-  
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture[0]);
+  glUniform1i(uniform_texture, 0);
+
   // render scene //
   objLoader.getMeshObj("trashbin")->render();
-  
+
   // swap render and screen buffer //
   glutSwapBuffers();
 }
