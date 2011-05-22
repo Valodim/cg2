@@ -200,6 +200,7 @@ void initUniforms(void) {
   glUniform1i(glGetUniformLocation(shaderProgram, "tex_nearest"), 0);
   glUniform1i(glGetUniformLocation(shaderProgram, "tex_linear"), 1);
   glUniform1i(glGetUniformLocation(shaderProgram, "tex_mipmap"), 2);
+
 }
 
 void initTextures (void) {
@@ -242,7 +243,8 @@ IplImage* loadTextureData(const char *textureFile) {
 }
 
 void updateGL() {
-  // TODO: enable your shader //
+  // XXX: enable your shader //
+  glUseProgram(shaderProgram);
   
   GLfloat aspectRatio = (GLfloat)windowWidth / windowHeight;
   
