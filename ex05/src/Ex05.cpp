@@ -8,6 +8,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <opencv/cxcore.h>
+#include <opencv/highgui.h>
+
 #include "MeshObj.h"
 #include "ObjLoader.h"
 #include "Trackball.h"
@@ -17,7 +20,7 @@ void initShader();
 void initUniforms();
 
 void initTextures();
-void loadTextureData(const char *fileName);
+IplImage* loadTextureData(const char *fileName);
 
 void resizeGL(int w, int h);
 void updateGL();
@@ -192,25 +195,50 @@ void initShader() {
 
 void initUniforms(void) {
   glUseProgram(shaderProgram);
-  
-  // TODO: get your textute-uniform location here //
+
+  // XXX: get your textute-uniform location here //
+  glUniform1i(glGetUniformLocation(shaderProgram, "tex_nearest"), 0);
+  glUniform1i(glGetUniformLocation(shaderProgram, "tex_linear"), 1);
+  glUniform1i(glGetUniformLocation(shaderProgram, "tex_mipmap"), 2);
 }
 
 void initTextures (void) {
   // load the texture for our object //
-  loadTextureData("textures/trashbin.png");
+  IplImage* img = loadTextureData("textures/trashbin.png");
   
-  // TODO: generate three textures                                       //
+  // XXX: generate three textures                                       //
   //       one for GL_NEAREST, one for GL_LINEAR and one MIPMAP texture  //
   //       pass the loaded texture data to each of these texture objects //
-  
+
+  glGenTextures(3, texture);
+
+  // GL_NEAREST
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture[0]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_BGR, GL_UNSIGNED_BYTE, img->imageData);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  // GL_LINEAR
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture[1]);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->width, img->height, 0, GL_BGR, GL_UNSIGNED_BYTE, img->imageData);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // MIPMAP
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, texture[2]);
+  gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, img->width, img->height, GL_BGR, GL_UNSIGNED_BYTE, img->imageData);
+
   // init textureIndex to 0 //
   textureIndex = 0;
 }
 
-void loadTextureData(const char *textureFile) {
-  // TODO: load the file given by 'textureFile' to the global array 'textureData' //
+IplImage* loadTextureData(const char *textureFile) {
+  // XXX: load the file given by 'textureFile' to the global array 'textureData' //
   //       hint: you can use 'cvLoadImage()' of OpenCV to import your file        //
+  return cvLoadImage(textureFile, CV_LOAD_IMAGE_COLOR);
 }
 
 void updateGL() {
@@ -255,6 +283,7 @@ void resizeGL(int w, int h) {
 void keyboardEvent(unsigned char key, int x, int y) {
   switch (key) {
     case 'x':
+    case 'q':
     case 27 : {
       exit(0);
       break;
