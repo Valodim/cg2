@@ -139,7 +139,7 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
             char* buf[3];
             // Step 2: Split up word by /
             int n = slashSplit(word, buf, 3);
-            std::cout << "dbg: " << buf[0] << ", " << buf[1] << ", " << buf[2] << std::endl;
+            // std::cout << "dbg: " << buf[0] << ", " << buf[1] << ", " << buf[2] << std::endl;
             // Step 3: for each element between the /, try to parse the int
             if(!sscanf(buf[0], "%d", &vi[i]))
                 vi[i] = 0;
@@ -150,7 +150,7 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
             std::cout << "got " << n << " results: " << vi[i] << ", " << ti[i] << ", " << ni[i] << std::endl;
         }
 
-        // TODO: directly split up polygons using 4 vertices into two triangles //
+        // XXX: directly split up polygons using 4 vertices into two triangles //
         // Hardcore splitting action going on here
         if(i == 4) {
             // Two faces: one with x1, x2, x3 - the other with x2, x3, x4
