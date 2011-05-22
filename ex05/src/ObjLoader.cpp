@@ -195,6 +195,22 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
     for (std::vector<Face>::iterator faceIter = localFaceList.begin(); faceIter != localFaceList.end(); ++faceIter) {
       // TODO: rearrange and complete data, when conflicting combinations of vertex and vertex attributes occur //
       for(unsigned int i = 0; i < 3; i++) {
+        bool errorFound = false;
+        if(faceIter->vIndex[i] >= localVertexList.size()) {
+          std::cerr << "face points to invalid vertex " << faceIter->vIndex[i] << " (" << faceIter->vIndex[i] << ">=" << localVertexList.size() << ")" << std::endl;
+          errorFound = true;
+        }
+        if(faceIter->nIndex[i] >= localNormalList.size()) {
+          std::cerr << "face points to invalid normal " << faceIter->vIndex[i] << " (" << faceIter->vIndex[i] << ">=" << localNormalList.size() << ")" << std::endl;
+          errorFound = true;
+        }
+        if(faceIter->tIndex[i] >= localTexCoordList.size()) {
+          std::cerr << "face points to invalid texcoord " << faceIter->tIndex[i] << " (" << faceIter->tIndex[i] << ">=" << localTexCoordList.size() << ")" << std::endl;
+          errorFound = true;
+        }
+        if(errorFound) {
+          continue;
+        }
         Vertex v;
         v.position[0] = localVertexList.at(faceIter->vIndex[i]).data[0];
         v.position[1] = localVertexList.at(faceIter->vIndex[i]).data[1];
