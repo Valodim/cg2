@@ -30,7 +30,8 @@ int slashSplit(char* string, char** ret, int max) {
         if(string[i] == '/') {
             ret[m] = new char[i-n+1];
             // copy string from mark to counter (this may be zero!)
-            strncpy(ret[m++], string+n, i-n);
+            strncpy(ret[m], string+n, i-n);
+            ret[m++][i-n] = 0;
             // set new mark
             n = i+1;
         }
@@ -38,7 +39,8 @@ int slashSplit(char* string, char** ret, int max) {
     }
     if(i > n) {
         ret[m] = new char[i-n+1];
-        strncpy(ret[m++], string+n, i-n);
+        strncpy(ret[m], string+n, i-n);
+        ret[m++][i-n] = 0;
     }
     return m;
 }
@@ -65,7 +67,7 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
   }
   // ID is not known yet -> try to load mesh from file //
   
-  // TODO: extend your objLoader to load vertices, vertex normals and texture coordinates
+  // XXX: extend your objLoader to load vertices, vertex normals and texture coordinates
   //       note: faces using normals and texture coordinates are defines as "f vi0/ti0/ni0 ... viN/tiN/niN"
   //       vi0 .. viN : vertex index of vertex 0..N
   //       ti0 .. tiN : texture coordinate index of vertex 0..N
