@@ -194,6 +194,38 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
     
     for (std::vector<Face>::iterator faceIter = localFaceList.begin(); faceIter != localFaceList.end(); ++faceIter) {
       // TODO: rearrange and complete data, when conflicting combinations of vertex and vertex attributes occur //
+      for(unsigned int i = 0; i < 3; i++) {
+        Vertex v;
+        v.position[0] = localVertexList.at(faceIter->vIndex[i]).data[0];
+        v.position[1] = localVertexList.at(faceIter->vIndex[i]).data[1];
+        v.position[2] = localVertexList.at(faceIter->vIndex[i]).data[2];
+        v.normal[0] = localNormalList.at(faceIter->nIndex[i]).data[0];
+        v.normal[1] = localNormalList.at(faceIter->nIndex[i]).data[1];
+        v.normal[2] = localNormalList.at(faceIter->nIndex[i]).data[2];
+        v.texcoord[0] = localTexCoordList.at(faceIter->tIndex[i]).data[0];
+        v.texcoord[1] = localTexCoordList.at(faceIter->tIndex[i]).data[1];
+        std::vector< Vertex >::size_type vertexIndex = 0;
+        for(vertexIndex = 0; vertexIndex < vertexList.size(); vertexIndex++) {
+          if(v.position[0] == vertexList.at(vertexIndex).position[0]
+             && v.position[1] == vertexList.at(vertexIndex).position[1]
+             && v.position[2] == vertexList.at(vertexIndex).position[2]
+             && v.normal[0] == vertexList.at(vertexIndex).normal[0]
+             && v.normal[1] == vertexList.at(vertexIndex).normal[1]
+             && v.normal[2] == vertexList.at(vertexIndex).normal[2]
+             && v.texcoord[0] == vertexList.at(vertexIndex).texcoord[0]
+             && v.texcoord[1] == vertexList.at(vertexIndex).texcoord[1]
+             ) {
+            break;
+          }
+        }
+        if(vertexIndex < vertexList.size()) {
+          indexList.push_back(vertexIndex);
+        }
+        else {
+          vertexList.push_back(v);
+          indexList.push_back(vertexList.size() - 1);
+        }
+      }
     }
     
     // reconstruct normals from given vertex data (only if no normals have been imported) //
