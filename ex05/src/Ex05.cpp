@@ -261,9 +261,9 @@ void updateGL() {
   
   trackball.rotateView();
   
-  // TODO: enable a texture unit, bind your texture and upload it as uniform to your shader //
+  // XXX: enable a texture unit, bind your texture and upload it as uniform to your shader //
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture[0]);
+  glBindTexture(GL_TEXTURE_2D, texture[textureIndex]);
   glUniform1i(uniform_texture, 0);
 
   // render scene //
