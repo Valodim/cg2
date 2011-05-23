@@ -193,46 +193,21 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
     std::vector<unsigned int> indexList;
     
     for (std::vector<Face>::iterator faceIter = localFaceList.begin(); faceIter != localFaceList.end(); ++faceIter) {
-      // TODO: rearrange and complete data, when conflicting combinations of vertex and vertex attributes occur //
+      // XXX: rearrange and complete data, when conflicting combinations of vertex and vertex attributes occur //
       for(unsigned int i = 0; i < 3; i++) {
-        bool errorFound = false;
-        if(faceIter->vIndex[i] >= localVertexList.size()) {
-          std::cerr << "face points to invalid vertex " << faceIter->vIndex[i] << " (" << faceIter->vIndex[i] << ">=" << localVertexList.size() << ")" << std::endl;
-          errorFound = true;
-        }
-        if(faceIter->nIndex[i] >= localNormalList.size()) {
-          std::cerr << "face points to invalid normal " << faceIter->vIndex[i] << " (" << faceIter->vIndex[i] << ">=" << localNormalList.size() << ")" << std::endl;
-          errorFound = true;
-        }
-        if(faceIter->tIndex[i] >= localTexCoordList.size()) {
-          std::cerr << "face points to invalid texcoord " << faceIter->tIndex[i] << " (" << faceIter->tIndex[i] << ">=" << localTexCoordList.size() << ")" << std::endl;
-          errorFound = true;
-        }
-        if(errorFound) {
-          continue;
-        }
         Vertex v;
-        v.position[0] = localVertexList.at(faceIter->vIndex[i]).data[0];
-        v.position[1] = localVertexList.at(faceIter->vIndex[i]).data[1];
-        v.position[2] = localVertexList.at(faceIter->vIndex[i]).data[2];
-        v.normal[0] = localNormalList.at(faceIter->nIndex[i]).data[0];
-        v.normal[1] = localNormalList.at(faceIter->nIndex[i]).data[1];
-        v.normal[2] = localNormalList.at(faceIter->nIndex[i]).data[2];
-        v.texcoord[0] = localTexCoordList.at(faceIter->tIndex[i]).data[0];
-        v.texcoord[1] = localTexCoordList.at(faceIter->tIndex[i]).data[1];
+        v.position[0] = localVertexList.at(faceIter->vIndex[i] - 1).data[0];
+        v.position[1] = localVertexList.at(faceIter->vIndex[i] - 1).data[1];
+        v.position[2] = localVertexList.at(faceIter->vIndex[i] - 1).data[2];
+        v.normal[0] = localNormalList.at(faceIter->nIndex[i] - 1).data[0];
+        v.normal[1] = localNormalList.at(faceIter->nIndex[i] - 1).data[1];
+        v.normal[2] = localNormalList.at(faceIter->nIndex[i] - 1).data[2];
+        v.texcoord[0] = localTexCoordList.at(faceIter->tIndex[i] - 1).data[0];
+        v.texcoord[1] = localTexCoordList.at(faceIter->tIndex[i] - 1).data[1];
         std::vector< Vertex >::size_type vertexIndex = 0;
         for(vertexIndex = 0; vertexIndex < vertexList.size(); vertexIndex++) {
-          if(v.position[0] == vertexList.at(vertexIndex).position[0]
-             && v.position[1] == vertexList.at(vertexIndex).position[1]
-             && v.position[2] == vertexList.at(vertexIndex).position[2]
-             && v.normal[0] == vertexList.at(vertexIndex).normal[0]
-             && v.normal[1] == vertexList.at(vertexIndex).normal[1]
-             && v.normal[2] == vertexList.at(vertexIndex).normal[2]
-             && v.texcoord[0] == vertexList.at(vertexIndex).texcoord[0]
-             && v.texcoord[1] == vertexList.at(vertexIndex).texcoord[1]
-             ) {
+          if(v == vertexList.at(vertexIndex))
             break;
-          }
         }
         if(vertexIndex < vertexList.size()) {
           indexList.push_back(vertexIndex);

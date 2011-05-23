@@ -27,7 +27,21 @@ struct Vertex {
   GLfloat normal[3];
   GLfloat texcoord[2];
   GLfloat color[4];
+
+  bool operator==(const Vertex& other) {
+     return this->position[0] == other.position[0]
+             && this->position[1] == other.position[1]
+             && this->position[2] == other.position[2]
+             && this->normal[0] == other.normal[0]
+             && this->normal[1] == other.normal[1]
+             && this->normal[2] == other.normal[2]
+             && this->texcoord[0] == other.texcoord[0]
+             && this->texcoord[1] == other.texcoord[1];
+  }
+
 };
+
+
 
 class MeshObj {
   public:
