@@ -43,13 +43,6 @@ ObjLoader objLoader;
 bool shadersInitialized = false;
 GLuint shaderProgram;
 
-// this is a container for texture data, OpenGL and GLSL locations //
-cv::Mat earthcloudmap_image;
-cv::Mat earthcloudmaptrans_image;
-cv::Mat earthlights1k_image;
-cv::Mat earthmap1k_image;
-cv::Mat earthspec1k_image;
-
 struct Texture {
   unsigned char *data;
   unsigned int width, height;
@@ -222,34 +215,23 @@ void initUniforms(void) {
 }
 
 void initTextures (void) {
-  // TODO: load the textures for the needed material layers from the files in './textures/ into your local texture objects //
-  earthcloudmap_image = cv::imread("../textures/earthcloudmap.jpg");
-  earthcloudmaptrans_image = cv::imread("../textures/earthcloudmaptrans.jpg");
-  earthlights1k_image = cv::imread("../textures/earthlights1k.jpg");
-  earthmap1k_image = cv::imread("../textures/earthmap1k.jpg");
-  earthspec1k_image = cv::imread("../textures/earthspec1k.jpg");
-  cv::flip(earthcloudmap_image, earthcloudmap_image, 0);
-  cv::flip(earthcloudmaptrans_image, earthcloudmaptrans_image, 0);
-  cv::flip(earthlights1k_image, earthlights1k_image, 0);
-  cv::flip(earthmap1k_image, earthmap1k_image, 0);
-  cv::flip(earthspec1k_image, earthspec1k_image, 0);
+  // XXX: load the textures for the needed material layers from the files in './textures/ into your local texture objects //
+  const char* imgnames[] = { "textures/earthcloudmap.jpg", "textures/earthcloudmaptrans.jpg", "textures/earthlights1k.jpg", "textures/earthmap1k.jpg", "textures/earthspec1k.jpg" };
 
-  cv::Mat* img_array[] = {&earthcloudmap_image,
-                          &earthcloudmaptrans_image,
-                          &earthlights1k_image,
-                          &earthmap1k_image,
-                          &earthspec1k_image};
-
+  // XXX: initialize OpenGL textures for each taxture layer //
   for (int i = 0; i < 5; ++i) {
-    texture[i].data = img_array[i]->data;
-    texture[i].width = img_array[i]->cols;
-    texture[i].height = img_array[i]->rows;
-    if (!img_array[i]->data) {
+    // this is a container for texture data, OpenGL and GLSL locations //
+    cv::Mat image = cv::imread(imgnames[i]);;
+    cv::flip(image, image, 0);
+
+    texture[i].data = image.data;
+    texture[i].width = image.cols;
+    texture[i].height = image.rows;
+    if (!image.data) {
       std::cerr << "Textures could not be loaded!" << std::endl;
       std::exit(1);
     }
 
-    // TODO: initialize OpenGL textures for each taxture layer //
     glGenTextures(1, &texture[i].glTextureLocation);
 
     glBindTexture(GL_TEXTURE_2D, texture[i].glTextureLocation);
@@ -257,10 +239,7 @@ void initTextures (void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 texture[i].width, texture[i].height,
-                 0, GL_BGR, GL_UNSIGNED_BYTE,
-                 texture[i].data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture[i].width, texture[i].height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture[i].data);
     glGenerateMipmap(GL_TEXTURE_2D);
   }
 }
