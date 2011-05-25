@@ -23,22 +23,28 @@ void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<u
     mMinBounds[i] = std::numeric_limits<float>::max();
     mMaxBounds[i] = std::numeric_limits<float>::min();
   }
-  for (int i = 0; i < vertexData.size(); ++i) {
+  for (unsigned int i = 0; i < vertexData.size(); ++i) {
     for (int j = 0; j < 3; ++j) {
       if (vertexData[i].position[j] < mMinBounds[j]) mMinBounds[j] = vertexData[i].position[j];
       if (vertexData[i].position[j] > mMaxBounds[j]) mMaxBounds[j] = vertexData[i].position[j];
     }
   }
   
-  // TODO: copy your data into an vertex and index array (Vertex[], GLuint[]) //
+  mIndexCount = indexData.size();
   
-  // TODO: init and bind a VBO (vertex buffer object) //
+  // XXX: init and bind a VBO (vertex buffer object) //
+  glGenBuffers(1, &mVBO);
+  glBindBuffer(GL_ARRAY_BUFFER, mVBO);
   
-  // TODO: copy data into the VBO //
+  // XXX: copy data into the VBO //
+  glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(Vertex), &vertexData[0], GL_STATIC_DRAW);
   
-  // TODO: init and bind a IBO (index buffer object) //
+  // XXX: init and bind a IBO (index buffer object) //
+  glGenBuffers(1, &mIBO);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBO);
   
-  // TODO: copy data into the IBO //
+  // XXX: copy data into the IBO //
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.size() * sizeof(unsigned int), &indexData[0], GL_STATIC_DRAW);
   
   // unbind buffers //
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -47,12 +53,25 @@ void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<u
 
 void MeshObj::render(void) {
   if (mVBO != 0) {
-    // TODO: init vertex attribute arrays for vertex position, normal vector and texture coordinate //
+    // XXX: init vertex attribute arrays for vertex position, normal vector and texture coordinate //
+    // enable if needed //
+    glClientActiveTexture(GL_TEXTURE0);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    // bind the buffer for rendering //
+    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
+    // XXX: bind the index buffer object mIBO here to tell OpenGL to use the indices in that array for indexing elements in our vertex buffer //
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIBO);
+
+    // give pointers for vertices, normals, colors, texture coordinates, if necessary //
+    glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
+    glNormalPointer(GL_FLOAT, sizeof(Vertex), (GLvoid*)(sizeof(GLfloat) * 3));
+    glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (GLvoid*)(sizeof(GLfloat) * 6));
     
-    // TODO: bind the index buffer object mIBO here to tell OpenGL to use the indices in that array for indexing elements in our vertex buffer //
-    
-    // TODO: render VBO as triangles //
-    
+    // XXX: render VBO as triangles //
+    glDrawElements(GL_TRIANGLES, mIndexCount / 3, GL_UNSIGNED_INT, NULL);
+
     // unbind the buffers //
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
