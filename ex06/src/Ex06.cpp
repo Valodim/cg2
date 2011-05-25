@@ -44,6 +44,12 @@ bool shadersInitialized = false;
 GLuint shaderProgram;
 
 // this is a container for texture data, OpenGL and GLSL locations //
+cv::Mat earthcloudmap_image;
+cv::Mat earthcloudmaptrans_image;
+cv::Mat earthlights1k_image;
+cv::Mat earthmap1k_image;
+cv::Mat earthspec1k_image;
+
 struct Texture {
   unsigned char *data;
   unsigned int width, height;
@@ -198,22 +204,65 @@ void initShader() {
   if (logLength > 0) {
     std::cout << "(initShader) - Linker log:\n------------------\n" << log << "\n------------------" << std::endl;
   }
-  
+
   initUniforms();
 }
 
 void initUniforms(void) {
   enableShader();
-  
+
   // TODO: init your texture uniforms here //
-  
+  texture[0].uniformLocation = glGetUniformLocation(shaderProgram, "clouds");
+  texture[1].uniformLocation = glGetUniformLocation(shaderProgram, "clouds_alpha");
+  texture[2].uniformLocation = glGetUniformLocation(shaderProgram, "earth_night");
+  texture[3].uniformLocation = glGetUniformLocation(shaderProgram, "earth_day");
+  texture[4].uniformLocation = glGetUniformLocation(shaderProgram, "specular");
+
   disableShader();
 }
 
 void initTextures (void) {
   // TODO: load the textures for the needed material layers from the files in './textures/ into your local texture objects //
-  
-  // TODO: initialize OpenGL textures for each taxture layer //
+  earthcloudmap_image = cv::imread("../textures/earthcloudmap.jpg");
+  earthcloudmaptrans_image = cv::imread("../textures/earthcloudmaptrans.jpg");
+  earthlights1k_image = cv::imread("../textures/earthlights1k.jpg");
+  earthmap1k_image = cv::imread("../textures/earthmap1k.jpg");
+  earthspec1k_image = cv::imread("../textures/earthspec1k.jpg");
+  cv::flip(earthcloudmap_image, earthcloudmap_image, 0);
+  cv::flip(earthcloudmaptrans_image, earthcloudmaptrans_image, 0);
+  cv::flip(earthlights1k_image, earthlights1k_image, 0);
+  cv::flip(earthmap1k_image, earthmap1k_image, 0);
+  cv::flip(earthspec1k_image, earthspec1k_image, 0);
+
+  cv::Mat* img_array[] = {&earthcloudmap_image,
+                          &earthcloudmaptrans_image,
+                          &earthlights1k_image,
+                          &earthmap1k_image,
+                          &earthspec1k_image};
+
+  for (int i = 0; i < 5; ++i) {
+    texture[i].data = img_array[i]->data;
+    texture[i].width = img_array[i]->cols;
+    texture[i].height = img_array[i]->rows;
+    if (!img_array[i]->data) {
+      std::cerr << "Textures could not be loaded!" << std::endl;
+      std::exit(1);
+    }
+
+    // TODO: initialize OpenGL textures for each taxture layer //
+    glGenTextures(1, &texture[i].glTextureLocation);
+
+    glBindTexture(GL_TEXTURE_2D, texture[i].glTextureLocation);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 texture[i].width, texture[i].height,
+                 0, GL_BGR, GL_UNSIGNED_BYTE,
+                 texture[i].data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  }
 }
 
 void loadTextureData(const char *textureFile, Texture &texture) {
@@ -269,7 +318,23 @@ void updateGL() {
   // TODO: setup your sun-light //
   
   // TODO: enable texture units, bind textures and pass them to your shader //
-  
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture[0].glTextureLocation);
+  glUniform1i(texture[0].uniformLocation, 0);
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture[1].glTextureLocation);
+  glUniform1i(texture[1].uniformLocation, 1);
+  glActiveTexture(GL_TEXTURE2);
+  glBindTexture(GL_TEXTURE_2D, texture[2].glTextureLocation);
+  glUniform1i(texture[2].uniformLocation, 2);
+  glActiveTexture(GL_TEXTURE3);
+  glBindTexture(GL_TEXTURE_2D, texture[3].glTextureLocation);
+  glUniform1i(texture[3].uniformLocation, 3);
+  glActiveTexture(GL_TEXTURE4);
+  glBindTexture(GL_TEXTURE_2D, texture[4].glTextureLocation);
+  glUniform1i(texture[4].uniformLocation, 4);
+
   objLoader.getMeshObj("earth")->render();
   
   disableShader();
