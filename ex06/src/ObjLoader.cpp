@@ -147,7 +147,7 @@ MeshObj* ObjLoader::loadObjFile(std::string fileName, std::string ID, float scal
     for (std::vector<Face>::iterator faceIter = localFaceList.begin(); faceIter != localFaceList.end(); ++faceIter) {
       std::string vertexId("");
       const char* idPattern = "%08d|%08d|%08d";
-      char idStr[26];
+      char idStr[27];
       // iterate over face vertices //
       for (unsigned int i = 0; i < 3; ++i) {
         sprintf(idStr, idPattern, faceIter->vIndex[i], faceIter->tIndex[i], faceIter->nIndex[i]);
