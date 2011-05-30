@@ -18,7 +18,7 @@ void main() {
   float light_strength = max(0, dot(L, N));
   float lambertian_term = dot(V, N);
 
-  float cloud_alpha = texture2D(clouds, gl_TexCoord[0].st).r;
+  float cloud_alpha = texture2D(clouds_alpha, gl_TexCoord[0].st).r;
 
   vec4 earth_ground = texture2D(earth_day, gl_TexCoord[0].st);
   vec4 cloud_layer = texture2D(clouds, gl_TexCoord[0].st);
