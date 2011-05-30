@@ -221,17 +221,7 @@ void initTextures (void) {
   // XXX: initialize OpenGL textures for each taxture layer //
   for (int i = 0; i < 5; ++i) {
     // this is a container for texture data, OpenGL and GLSL locations //
-    cv::Mat image = cv::imread(imgnames[i]);;
-    cv::flip(image, image, 0);
-
-    texture[i].data = image.data;
-    texture[i].width = image.cols;
-    texture[i].height = image.rows;
-    if (!image.data) {
-      std::cerr << "Textures could not be loaded!" << std::endl;
-      std::exit(1);
-    }
-
+    loadTextureData(imgnames[i], texture[i]);
     glGenTextures(1, &texture[i].glTextureLocation);
 
     glBindTexture(GL_TEXTURE_2D, texture[i].glTextureLocation);
