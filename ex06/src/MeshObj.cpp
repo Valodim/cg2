@@ -70,7 +70,7 @@ void MeshObj::render(void) {
     glTexCoordPointer(2, GL_FLOAT, sizeof(Vertex), (GLvoid*)(sizeof(GLfloat) * 6));
     
     // XXX: render VBO as triangles //
-    glDrawElements(GL_TRIANGLES, mIndexCount / 3, GL_UNSIGNED_INT, NULL);
+    glDrawElements(GL_TRIANGLES, mIndexCount, GL_UNSIGNED_INT, NULL);
 
     // unbind the buffers //
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
