@@ -4,7 +4,6 @@ uniform sampler2D clouds;
 uniform sampler2D clouds_alpha;
 uniform sampler2D earth_night;
 uniform sampler2D earth_day;
-uniform sampler2D specular;
 
 varying vec3 viewing_angle;
 varying vec3 lightdir;
@@ -25,7 +24,7 @@ void main() {
   vec4 diffuse = cloud_alpha * cloud_layer + (1 - cloud_alpha) * earth_ground;
   vec4 ambient = diffuse * 0.2;
 
-  vec4 emissive = texture2D(earth_night, gl_TexCoord[0].st) * (1 - light_strength) * (1 - cloud_alpha);
+  vec4 emissive = texture2D(earth_night, gl_TexCoord[0].st) * pow((1 - light_strength), 2) * (1 - cloud_alpha);
 
   gl_FragColor = (diffuse * light_strength + ambient) * lambertian_term + emissive;
 }
