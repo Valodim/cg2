@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <cstring>
 
 ObjLoader::ObjLoader() {
 }
@@ -249,34 +250,75 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
     //       - compute tangent and bitangent from uv-mapping and triangle edges
     //       - accumulate tangent and bitangent to face-vertices
     for(unsigned int i = 0; i < indexList.size(); i += 3) {
-        Vertex v0 = indexList[i+0];
-        Vertex v1 = indexList[i+1];
-        Vertex v2 = indexList[i+2];
+        Vertex& v0 = vertexList[indexList[i+0]];
+        Vertex& v1 = vertexList[indexList[i+1]];
+        Vertex& v2 = vertexList[indexList[i+2]];
 
         Point3D V0 = Point3D(v0.position);
         Point3D V1 = Point3D(v1.position);
         Point3D V2 = Point3D(v2.position);
 
-        Point3D e1 = p1-p0;
-        Point3D e2 = p2-p0;
+        Point3D e1 = V1-V0;
+        Point3D e2 = V2-V0;
 
         float dU1 = v1.texcoord[0] - v0.texcoord[0];
         float dU2 = v2.texcoord[0] - v0.texcoord[0];
         float dV1 = v1.texcoord[1] - v0.texcoord[1];
-        float dV1 = v2.texcoord[1] - v0.texcoord[1];
+        float dV2 = v2.texcoord[1] - v0.texcoord[1];
 
         float det = dV2*dU1 - dU2*dV1;
 
+        dU1 /= det;
+        dU2 /= det;
+        dV1 /= det;
+        dV2 /= det;
+
         Point3D T, B;
+
+        T = e1 * dV2 - e2 * dV1;
+        B = e1 * dU2 - e2 * dU1;
+
+        // XXX: normalize accumulated tangents and bitangents //
+        normalizeVector(T.data, 3);
+        normalizeVector(B.data, 3);
+
+        memcpy(v0.tangent, T.data, 3*sizeof(GLfloat));
+        memcpy(v1.tangent, T.data, 3*sizeof(GLfloat));
+        memcpy(v2.tangent, T.data, 3*sizeof(GLfloat));
+
+        memcpy(v0.bitangent, B.data, 3*sizeof(GLfloat));
+        memcpy(v1.bitangent, B.data, 3*sizeof(GLfloat));
+        memcpy(v2.bitangent, B.data, 3*sizeof(GLfloat));
 
     }
 
-    // TODO: normalize accumulated tangents and bitangents //
+    // normalize all normals //
+    for (unsigned int i = 0; i < vertexList.size(); ++i) {
+        normalizeVector(vertexList[i].tangent);
+        normalizeVector(vertexList[i].bitangent);
+    }
+
+    for(unsigned int i = 0; i < indexList.size(); i++) {
+        Vertex& v = vertexList[indexList[i]];
+
+        Point3D T = Point3D(v.tangent), N = Point3D(v.normal);
+        Point3D Tp = T - (N*T)*N;
+        normalizeVector(Tp.data, 3);
+
+        Point3D Bp = Tp.cross(N);
+        normalizeVector(Bp.data, 3);
+
+        memcpy(v.tangent, Tp.data, 3*sizeof(GLfloat));
+        memcpy(v.bitangent, Bp.data, 3*sizeof(GLfloat));
+    }
 
     // TODO: use gram-schmidt approach to reorthogonalize the current vectors //
     //       - compute remapped tangent: T' = T - (N*T)*N
     //       - normalize T'
     //       - compute cross-product to recover B' from T' and N
+    // Point3D  Tprime = T - (N*T)*N;
+    // normalizeVector(Tprime.data, 3);
+
 
     // TODO: store computed vectors as vertex attributes //
 }

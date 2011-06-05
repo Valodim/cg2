@@ -20,6 +20,22 @@ struct Point3D {
   }
   float data[3];
 
+  Point3D operator*(Point3D const &a) {
+      Point3D p(this->data);
+      p.data[0] *= a.data[0];
+      p.data[1] *= a.data[1];
+      p.data[2] *= a.data[2];
+      return p;
+  }
+
+  Point3D operator*(float const &a) {
+      Point3D p(this->data);
+      p.data[0] *= a;
+      p.data[1] *= a;
+      p.data[2] *= a;
+      return p;
+  }
+
   Point3D operator+(Point3D const &a) {
       Point3D p(this->data);
       p.data[0] += a.data[0];
@@ -35,6 +51,14 @@ struct Point3D {
       p.data[2] -= a.data[2];
       return p;
   }
+
+  Point3D cross(Point3D const &a) {
+      Point3D p;
+      p.data[0] = this->data[1] * a.data[2] - this->data[2] * a.data[1];
+      p.data[1] = this->data[2] * a.data[0] - this->data[0] * a.data[2];
+      p.data[2] = this->data[0] * a.data[1] - this->data[1] * a.data[0];
+      return p;
+}
 
 };
 
