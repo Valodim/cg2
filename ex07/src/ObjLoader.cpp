@@ -243,12 +243,7 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
 }
 
 void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::vector<unsigned int> &indexList) {
-    // TODO: iterator over faces (given by index triplets) and calculate tangents and bitangents for each vertex //
-    //       - compute triangle edges e1, e2
-    //       - compute uv-distances dU1, dU2, dV1, dV2
-    //       - compute determinant det(A)
-    //       - compute tangent and bitangent from uv-mapping and triangle edges
-    //       - accumulate tangent and bitangent to face-vertices
+    // XXX: iterator over faces (given by index triplets) and calculate tangents and bitangents for each vertex //
     for(unsigned int i = 0; i < indexList.size(); i += 3) {
         Vertex& v0 = vertexList[indexList[i+0]];
         Vertex& v1 = vertexList[indexList[i+1]];
@@ -258,14 +253,17 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
         Point3D V1 = Point3D(v1.position);
         Point3D V2 = Point3D(v2.position);
 
+        //       - compute triangle edges e1, e2
         Point3D e1 = V1-V0;
         Point3D e2 = V2-V0;
 
+        //       - compute uv-distances dU1, dU2, dV1, dV2
         float dU1 = v1.texcoord[0] - v0.texcoord[0];
         float dU2 = v2.texcoord[0] - v0.texcoord[0];
         float dV1 = v1.texcoord[1] - v0.texcoord[1];
         float dV2 = v2.texcoord[1] - v0.texcoord[1];
 
+        //       - compute determinant det(A)
         float det = dV2*dU1 - dU2*dV1;
 
         dU1 /= det;
@@ -273,22 +271,22 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
         dV1 /= det;
         dV2 /= det;
 
-        Point3D T, B;
-
-        T = e1 * dV2 - e2 * dV1;
-        B = e1 * dU2 - e2 * dU1;
+        //       - compute tangent and bitangent from uv-mapping and triangle edges
+        Point3D T = e1 * dV2 - e2 * dV1;
+        Point3D B = e1 * dU2 - e2 * dU1;
 
         // XXX: normalize accumulated tangents and bitangents //
         normalizeVector(T.data, 3);
         normalizeVector(B.data, 3);
 
-        memcpy(v0.tangent, T.data, 3*sizeof(GLfloat));
-        memcpy(v1.tangent, T.data, 3*sizeof(GLfloat));
-        memcpy(v2.tangent, T.data, 3*sizeof(GLfloat));
+        //       - accumulate tangent and bitangent to face-vertices
+        v0.addTangent(T.data);
+        v1.addTangent(T.data);
+        v2.addTangent(T.data);
 
-        memcpy(v0.bitangent, B.data, 3*sizeof(GLfloat));
-        memcpy(v1.bitangent, B.data, 3*sizeof(GLfloat));
-        memcpy(v2.bitangent, B.data, 3*sizeof(GLfloat));
+        v0.addBitangent(B.data);
+        v1.addBitangent(B.data);
+        v2.addBitangent(B.data);
 
     }
 

@@ -28,6 +28,17 @@ struct Vertex {
   GLfloat texcoord[2];
   GLfloat tangent[3];
   GLfloat bitangent[3];
+
+  void addTangent(float a[]) {
+      this->tangent[0] += a[0];
+      this->tangent[1] += a[1];
+      this->tangent[2] += a[2];
+  }
+  void addBitangent(float a[]) {
+      this->bitangent[0] += a[0];
+      this->bitangent[1] += a[1];
+      this->bitangent[2] += a[2];
+  }
 };
 
 class MeshObj {
