@@ -20,12 +20,12 @@ struct Point3D {
   }
   float data[3];
 
-  Point3D operator*(Point3D const &a) {
-      Point3D p(this->data);
-      p.data[0] *= a.data[0];
-      p.data[1] *= a.data[1];
-      p.data[2] *= a.data[2];
-      return p;
+  float operator*(Point3D const &a) {
+      float r = 0.0f;
+      r += this->data[0] * a.data[0];
+      r += this->data[1] * a.data[1];
+      r += this->data[2] * a.data[2];
+      return r;
   }
 
   Point3D operator*(float const &a) {
@@ -61,6 +61,8 @@ struct Point3D {
 }
 
 };
+
+Point3D operator*(float const &a, Point3D const &b);
 
 struct Face {
   unsigned int vIndex[3];

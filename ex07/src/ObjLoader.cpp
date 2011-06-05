@@ -6,6 +6,14 @@
 #include <cmath>
 #include <cstring>
 
+Point3D operator*(float const &a, Point3D const &b) {
+  Point3D p(b.data);
+  p.data[0] *= a;
+  p.data[1] *= a;
+  p.data[2] *= a;
+  return p;
+}
+
 ObjLoader::ObjLoader() {
 }
 
