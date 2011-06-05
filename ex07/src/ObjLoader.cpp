@@ -313,7 +313,9 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
         Vertex& v = vertexList[indexList[i]];
 
         Point3D T = Point3D(v.tangent), N = Point3D(v.normal);
-        Point3D Tp = T - (N*T)*N;
+        // note the first multiplication is scalar product, the second is float * vector!
+        // added the explicit cast for readability
+        Point3D Tp = T - float(N*T) *N;
         normalizeVector(Tp.data, 3);
 
         Point3D Bp = Tp.cross(N);
