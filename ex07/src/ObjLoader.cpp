@@ -304,6 +304,11 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
         normalizeVector(vertexList[i].bitangent);
     }
 
+    // XXX: use gram-schmidt approach to reorthogonalize the current vectors //
+    //       - compute remapped tangent: T' = T - (N*T)*N
+    //       - normalize T'
+    //       - compute cross-product to recover B' from T' and N
+
     for(unsigned int i = 0; i < indexList.size(); i++) {
         Vertex& v = vertexList[indexList[i]];
 
@@ -314,19 +319,11 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
         Point3D Bp = Tp.cross(N);
         normalizeVector(Bp.data, 3);
 
+        // XXX: store computed vectors as vertex attributes //
         memcpy(v.tangent, Tp.data, 3*sizeof(GLfloat));
         memcpy(v.bitangent, Bp.data, 3*sizeof(GLfloat));
     }
 
-    // TODO: use gram-schmidt approach to reorthogonalize the current vectors //
-    //       - compute remapped tangent: T' = T - (N*T)*N
-    //       - normalize T'
-    //       - compute cross-product to recover B' from T' and N
-    // Point3D  Tprime = T - (N*T)*N;
-    // normalizeVector(Tprime.data, 3);
-
-
-    // TODO: store computed vectors as vertex attributes //
 }
 
 MeshObj* ObjLoader::getMeshObj(std::string ID) {
