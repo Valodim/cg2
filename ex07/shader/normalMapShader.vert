@@ -14,21 +14,21 @@ attribute vec3 att_bitangent;
 varying vec3 viewing_angle;
 varying vec3 lightdir;
 
-varying vec3 normal;
-varying vec3 tangent;
-varying vec3 bitangent;
-
 void main() {
 
+  // stupid vec4..
   vec4 pos = vec4(att_position, 1.0);
 
+  // viewing angle and lightdir, as usual
   viewing_angle = -(gl_ModelViewMatrix * pos).xyz;
   lightdir = (gl_ModelViewMatrix * (vec4(1.0) - pos)).xyz;
 
-  normal = gl_NormalMatrix * att_normal;
-  tangent = (gl_ModelViewMatrix * vec4(att_tangent, 1.0)).xyz;
-  bitangent = (gl_ModelViewMatrix * vec4(att_bitangent, 1.0)).xyz;
+  // prepare normal, tangent and bitangent in world space
+  vec3 normal = gl_NormalMatrix * att_normal;
+  vec3 tangent = (gl_ModelViewMatrix * vec4(att_tangent, 1.0)).xyz;
+  vec3 bitangent = (gl_ModelViewMatrix * vec4(att_bitangent, 1.0)).xyz;
 
+  // Mt == M^-1 in this case
   mat4 Mt = mat4( tangent.x, bitangent.y, normal.z, 0,
                   tangent.x, bitangent.y, normal.z, 0,
                   tangent.x, bitangent.y, normal.z, 0,

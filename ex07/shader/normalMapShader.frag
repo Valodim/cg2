@@ -11,10 +11,6 @@ uniform sampler2D tex_normal;
 varying vec3 viewing_angle;
 varying vec3 lightdir;
 
-varying vec3 normal;
-varying vec3 tangent;
-varying vec3 bitangent;
-
 void main() {
 
   // get normal from texture
@@ -28,11 +24,14 @@ void main() {
   vec3 N = normalize(texnormal);
   vec3 L = normalize(lightdir);
 
+  // terms with dot products in them
   float lambertian_term = dot(V, N);
   float light_strength = max(0, dot(L, N));
 
+  // diffuse color from texture
   vec4 diffuse = texture2D(tex_diffuse, gl_TexCoord[0].st);
 
+  // add them all up
   gl_FragColor = diffuse * light_strength * lambertian_term;
 
 }
