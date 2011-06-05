@@ -221,8 +221,8 @@ void initUniforms(void) {
 
 void initTextures (void) {
   // XXX: init your textures here //
-  loadTextureData("mars.png", texture[DIFFUSE]);
-  loadTextureData("mars_normal.png", texture[NORMAL_MAP]);
+  loadTextureData("textures/mars.png", texture[DIFFUSE]);
+  loadTextureData("textures/mars_normal.png", texture[NORMAL_MAP]);
 }
 
 void loadTextureData(const char *textureFile, Texture &texture) {
