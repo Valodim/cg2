@@ -13,7 +13,29 @@ struct Point3D {
     data[1] = y;
     data[2] = z;
   }
+  Point3D(float const* const d) {
+    data[0] = d[0];
+    data[1] = d[1];
+    data[2] = d[2];
+  }
   float data[3];
+
+  Point3D operator+(Point3D const &a) {
+      Point3D p(this->data);
+      p.data[0] += a.data[0];
+      p.data[1] += a.data[1];
+      p.data[2] += a.data[2];
+      return p;
+  }
+
+  Point3D operator-(Point3D const &a) {
+      Point3D p(this->data);
+      p.data[0] -= a.data[0];
+      p.data[1] -= a.data[1];
+      p.data[2] -= a.data[2];
+      return p;
+  }
+
 };
 
 struct Face {

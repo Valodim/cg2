@@ -242,21 +242,43 @@ void ObjLoader::reconstructNormals(std::vector<Vertex> &vertexList, const std::v
 }
 
 void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::vector<unsigned int> &indexList) {
-  // TODO: iterator over faces (given by index triplets) and calculate tangents and bitangents for each vertex //
-  //       - compute triangle edges e1, e2
-  //       - compute uv-distances dU1, dU2, dV1, dV2
-  //       - compute determinant det(A)
-  //       - compute tangent and bitangent from uv-mapping and triangle edges
-  //       - accumulate tangent and bitangent to face-vertices
-  
-  // TODO: normalize accumulated tangents and bitangents //
-  
-  // TODO: use gram-schmidt approach to reorthogonalize the current vectors //
-  //       - compute remapped tangent: T' = T - (N*T)*N
-  //       - normalize T'
-  //       - compute cross-product to recover B' from T' and N
-  
-  // TODO: store computed vectors as vertex attributes //
+    // TODO: iterator over faces (given by index triplets) and calculate tangents and bitangents for each vertex //
+    //       - compute triangle edges e1, e2
+    //       - compute uv-distances dU1, dU2, dV1, dV2
+    //       - compute determinant det(A)
+    //       - compute tangent and bitangent from uv-mapping and triangle edges
+    //       - accumulate tangent and bitangent to face-vertices
+    for(unsigned int i = 0; i < indexList.size(); i += 3) {
+        Vertex v0 = indexList[i+0];
+        Vertex v1 = indexList[i+1];
+        Vertex v2 = indexList[i+2];
+
+        Point3D V0 = Point3D(v0.position);
+        Point3D V1 = Point3D(v1.position);
+        Point3D V2 = Point3D(v2.position);
+
+        Point3D e1 = p1-p0;
+        Point3D e2 = p2-p0;
+
+        float dU1 = v1.texcoord[0] - v0.texcoord[0];
+        float dU2 = v2.texcoord[0] - v0.texcoord[0];
+        float dV1 = v1.texcoord[1] - v0.texcoord[1];
+        float dV1 = v2.texcoord[1] - v0.texcoord[1];
+
+        float det = dV2*dU1 - dU2*dV1;
+
+        Point3D T, B;
+
+    }
+
+    // TODO: normalize accumulated tangents and bitangents //
+
+    // TODO: use gram-schmidt approach to reorthogonalize the current vectors //
+    //       - compute remapped tangent: T' = T - (N*T)*N
+    //       - normalize T'
+    //       - compute cross-product to recover B' from T' and N
+
+    // TODO: store computed vectors as vertex attributes //
 }
 
 MeshObj* ObjLoader::getMeshObj(std::string ID) {
