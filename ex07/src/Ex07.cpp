@@ -54,6 +54,8 @@ struct Texture {
 enum TextureLayer {DIFFUSE = 0, NORMAL_MAP, LAYER_COUNT};
 Texture texture[LAYER_COUNT];
 
+GLint att_position, att_normal, att_texcoord, att_tangent, att_bitangent;
+
 void loadTextureData(const char *fileName, Texture &texture);
 
 int main (int argc, char **argv) {
@@ -204,13 +206,23 @@ void initShader() {
 void initUniforms(void) {
   enableShader();
   
-  // TODO: assign the used texture uniforms here //
+  att_position = glGetAttribLocation(shaderProgram, "att_position");
+  att_normal = glGetAttribLocation(shaderProgram, "att_normal");
+  att_texcoord = glGetAttribLocation(shaderProgram, "att_texcoord");
+  att_tangent = glGetAttribLocation(shaderProgram, "att_tangent");
+  att_bitangent = glGetAttribLocation(shaderProgram, "att_bitangent");
+
+  // XXX: assign the used texture uniforms here //
+  texture[DIFFUSE].uniformLocation = glGetUniformLocation(shaderProgram, "tex_diffuse");
+  texture[NORMAL_MAP].uniformLocation = glGetUniformLocation(shaderProgram, "tex_normal");
   
   disableShader();
 }
 
 void initTextures (void) {
-  // TODO: init your textures here //
+  // XXX: init your textures here //
+  loadTextureData("mars.png", texture[DIFFUSE]);
+  loadTextureData("mars_normal.png", texture[NORMAL_MAP]);
 }
 
 void loadTextureData(const char *textureFile, Texture &texture) {
@@ -257,10 +269,19 @@ void updateGL() {
   // render planet //
   enableShader();
   
-  // TODO: enable and upload textures //
+  // XXX: enable and upload textures //
+  glEnable(GL_TEXTURE_2D);
+
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture[DIFFUSE].glTextureLocation);
+  glUniform1i(texture[DIFFUSE].uniformLocation, 0);
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture[NORMAL_MAP].glTextureLocation);
+  glUniform1i(texture[NORMAL_MAP].uniformLocation, 1);
   
   // render object //
-  objLoader.getMeshObj("planet")->render();
+  objLoader.getMeshObj("planet")->render(att_position, att_normal, att_texcoord, att_tangent, att_bitangent);
   
   disableShader();
   
