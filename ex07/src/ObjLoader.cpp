@@ -281,27 +281,34 @@ void ObjLoader::computeTangentSpace(std::vector<Vertex> &vertexList, const std::
 
         //       - compute tangent and bitangent from uv-mapping and triangle edges
         Point3D T = e1 * dV2 - e2 * dV1;
-        Point3D B = e1 * dU2 - e2 * dU1;
 
         // XXX: normalize accumulated tangents and bitangents //
         normalizeVector(T.data, 3);
-        normalizeVector(B.data, 3);
 
         //       - accumulate tangent and bitangent to face-vertices
         v0.addTangent(T.data);
         v1.addTangent(T.data);
         v2.addTangent(T.data);
 
-        v0.addBitangent(B.data);
-        v1.addBitangent(B.data);
-        v2.addBitangent(B.data);
+        /* We calculate the bitangent later using only T' and N, so this whole thing
+         * is pretty much dead code!
+
+            Point3D B = e1 * dU2 - e2 * dU1;
+            normalizeVector(B.data, 3);
+
+            v0.addBitangent(B.data);
+            v1.addBitangent(B.data);
+            v2.addBitangent(B.data);
+        */
 
     }
 
     // normalize all normals //
     for (unsigned int i = 0; i < vertexList.size(); ++i) {
         normalizeVector(vertexList[i].tangent);
-        normalizeVector(vertexList[i].bitangent);
+
+        // not necessary, see above
+        // normalizeVector(vertexList[i].bitangent);
     }
 
     // XXX: use gram-schmidt approach to reorthogonalize the current vectors //
