@@ -222,7 +222,26 @@ void initUniforms(void) {
 void initTextures (void) {
   // XXX: init your textures here //
   loadTextureData("textures/mars.png", texture[DIFFUSE]);
+  glGenTextures(1, &texture[DIFFUSE].glTextureLocation);
+
+  glBindTexture(GL_TEXTURE_2D, texture[DIFFUSE].glTextureLocation);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture[DIFFUSE].width, texture[DIFFUSE].height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture[DIFFUSE].data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+
   loadTextureData("textures/mars_normal.png", texture[NORMAL_MAP]);
+  glGenTextures(1, &texture[NORMAL_MAP].glTextureLocation);
+
+  glBindTexture(GL_TEXTURE_2D, texture[NORMAL_MAP].glTextureLocation);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture[NORMAL_MAP].width, texture[NORMAL_MAP].height, 0, GL_BGR, GL_UNSIGNED_BYTE, texture[NORMAL_MAP].data);
+  glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void loadTextureData(const char *textureFile, Texture &texture) {
