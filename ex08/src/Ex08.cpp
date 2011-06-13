@@ -279,9 +279,11 @@ void renderShadow() {
   // XXX: final pass -> render screen quad with current stencil buffer //
   glFrontFace(GL_CCW);
   glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   renderScreenFillingQuad();
+  glDisable(GL_BLEND);
 
   // XXX: diable stencil testing //
   glDisable(GL_STENCIL_TEST);
