@@ -53,10 +53,10 @@ int main (int argc, char **argv) {
   // XXX: enable the stencil buffer //
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-  
+
   windowWidth = 512;
   windowHeight = 512;
-  
+
   zNear = 0.1f;
   zFar = 10000.0f;
   fov = 45.0f;
@@ -64,35 +64,36 @@ int main (int argc, char **argv) {
   glutInitWindowSize (windowWidth, windowHeight);
   glutInitWindowPosition (100, 100);
   glutCreateWindow("Exercise 08");
-  
+
   glutReshapeFunc(resizeGL);
   glutDisplayFunc(updateGL);
   glutIdleFunc(idle);
   glutKeyboardFunc(keyboardEvent);
   glutMouseFunc(mouseEvent);
   glutMotionFunc(mouseMoveEvent);
-  
+
   GLenum err = glewInit();
   if (GLEW_OK != err) {
     fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
   }
   fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-  
+
   // load obj file here //
   objLoader.loadObjFile("./meshes/testbox.obj", "scene");
-  
+  objLoader.getMeshObj("scene")->initShadowVolume(lightPos);
+
   initGL();
   initShader();
-  
+
   glutMainLoop();
-  
+
   return 0;
 }
 
 void initGL() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_DEPTH_TEST);
-  
+
   // set projectionmatrix
   glMatrixMode(GL_PROJECTION);
   gluPerspective(fov, 1.0, zNear, zFar);
@@ -108,10 +109,10 @@ char* loadShaderSource(const char* fileName) {
     file.seekg(0, std::ios::end);
     srcLength = file.tellg();
     file.seekg(0, std::ios::beg);
-    
+
     char *srcData = new char[srcLength + 1];
     srcData[srcLength] = 0;
-    
+
     unsigned long i = 0;
     while (file.good()) {
       srcData[i] = file.get();
@@ -121,7 +122,7 @@ char* loadShaderSource(const char* fileName) {
     }
     file.close();
     srcData[i] = 0;
-    
+
     // return shader source //
     return srcData;
   } else {
@@ -135,13 +136,13 @@ GLuint loadShaderFile(const char* fileName, GLenum shaderType) {
   if (shader == 0) {
     return 0;
   }
-  
+
   const char* shaderSrc = loadShaderSource(fileName);
   if (shaderSrc == NULL) return 0;
   glShaderSource(shader, 1, (const char**)&shaderSrc, NULL);
-  
+
   glCompileShader(shader);
-  
+
   int logMaxLength;
   glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logMaxLength);
   char log[logMaxLength];
@@ -150,15 +151,15 @@ GLuint loadShaderFile(const char* fileName, GLenum shaderType) {
   if (logLength > 0) {
     std::cout << "(loadShaderFile) - Compiler log:\n------------------\n" << log << "\n------------------" << std::endl;
   }
-  
+
   return shader;
 }
 
 void initShader() {
   shadersInitialized = false;
-  
+
   shaderProgram = glCreateProgram();
-  
+
   GLuint vertexShader = loadShaderFile("shader/shader.vert", GL_VERTEX_SHADER);
   if (vertexShader == 0) {
     std::cout << "(initShader) - Could not create vertex shader." << std::endl;
@@ -171,14 +172,14 @@ void initShader() {
     glDeleteProgram(shaderProgram);
     return;
   }
-  
+
   // loaded shaders seem to work -> attach them to program //
   glAttachShader(shaderProgram, vertexShader);
   glAttachShader(shaderProgram, fragmentShader);
-  
+
   // link final program //
   glLinkProgram(shaderProgram);
-  
+
   // get log //
   int logMaxLength;
   glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &logMaxLength);
@@ -200,24 +201,24 @@ void disableShader() {
 
 void updateGL() {
   GLfloat aspectRatio = (GLfloat)windowWidth / windowHeight;
-  
+
   // clear renderbuffer //
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  
+
   glViewport(0, 0, windowWidth, windowHeight);
-  
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(fov, aspectRatio, zNear, zFar);
-  
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  
+
   trackball.rotateView();
-    
+
   // render scene //
   renderScene();
-  
+
   // render shadow volumes //
   renderShadow();
 
@@ -228,39 +229,63 @@ void updateGL() {
 void renderScene() {
   // enable shader //
   enableShader();
-  
+
   // light source //
   glEnable(GL_LIGHT0);
   glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
-  
+
   // render scene objects //
   objLoader.getMeshObj("scene")->render();
-  
+
   glDisable(GL_LIGHT0);
   // disable shader //
   disableShader();
 }
 
 void renderShadow() {
+
   // XXX: init your shadow volume, if update is needed //
   if(!shadowUpToDate) {
     objLoader.getMeshObj("scene")->initShadowVolume(lightPos);
-    shadowUpToDate = false;
+    shadowUpToDate = true;
   }
-  
-  // TODO: disable rendering to screen and depth buffer //
-  
-  // TODO: enable stencil test and face culling //
-  
-  // TODO: first shadow pass -> render front faces increasing stencil buffer //
-  
-  // TODO: second shadow pass -> render back faces decreasing stencil buffer //
-  
-  // TODO: enable rendering to screen and depth buffer and disable face culling //
-  
-  // TODO: final pass -> render screen quad with current stencil buffer //
-  
-  // TODO: diable stencil testing //
+
+  // XXX: disable rendering to screen and depth buffer //
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  // glDepthMask(GL_FALSE);
+
+  // XXX: enable stencil test and face culling //
+  glEnable(GL_STENCIL_TEST);
+  glEnable(GL_CULL_FACE);
+
+  glStencilFunc(GL_ALWAYS, 1, 0xFFFFFFFF);
+
+  // XXX: first shadow pass -> render front faces increasing stencil buffer //
+  glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+  glFrontFace(GL_CCW);
+  objLoader.getMeshObj("scene")->renderShadowVolume();
+
+  // XXX: second shadow pass -> render back faces decreasing stencil buffer //
+  glStencilOp(GL_KEEP, GL_KEEP, GL_DECR);
+  glFrontFace(GL_CW);
+  objLoader.getMeshObj("scene")->renderShadowVolume();
+
+  // XXX: enable rendering to screen and depth buffer and disable face culling //
+  glDisable(GL_CULL_FACE);
+
+  // glDepthMask(GL_TRUE);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+
+  // XXX: final pass -> render screen quad with current stencil buffer //
+  glFrontFace(GL_CCW);
+  glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+  renderScreenFillingQuad();
+
+  // XXX: diable stencil testing //
+  glDisable(GL_STENCIL_TEST);
+
 }
 
 void renderScreenFillingQuad() {
