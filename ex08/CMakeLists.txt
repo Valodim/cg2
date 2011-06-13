@@ -9,10 +9,7 @@ SET(CMAKE_BUILD_TYPE debug)
 SET(CMAKE_CXX_FLAGS "-Wall")
 
 # Add path to additional packages (makes it easier to include common libraries)
-set(CMAKE_MODULE_PATH "./CMakeModules/")
-
-# Define where your executables should be put
-set(EXECUTABLE_OUTPUT_PATH ${Exercise08_SOURCE_DIR})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules/")
 
 # Add required packages (e.g. libraries)
 FIND_PACKAGE(OpenGL REQUIRED)
