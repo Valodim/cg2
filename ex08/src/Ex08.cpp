@@ -49,9 +49,9 @@ GLuint shaderProgram;
 GLfloat lightPos[4] = {0.0, 0.0, 0.0, 1.0};
 
 int main (int argc, char **argv) {
-  // TODO: enable the stencil buffer //
+  // XXX: enable the stencil buffer //
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+  glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
   
   windowWidth = 512;
   windowHeight = 512;
