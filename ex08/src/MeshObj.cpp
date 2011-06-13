@@ -1,7 +1,9 @@
 #include "MeshObj.h"
+#include "ObjLoader.h"
 #include <iostream>
 #include <limits>
 #include <cmath>
+#include <cstring>
 
 MeshObj::MeshObj() {
   mVBO = 0;
@@ -24,7 +26,7 @@ void MeshObj::setData(const std::vector<Vertex> &vertexData, const std::vector<u
     mMinBounds[i] = std::numeric_limits<float>::max();
     mMaxBounds[i] = std::numeric_limits<float>::min();
   }
-  for (int i = 0; i < vertexData.size(); ++i) {
+  for (unsigned int i = 0; i < vertexData.size(); ++i) {
     for (int j = 0; j < 3; ++j) {
       if (vertexData[i].position[j] < mMinBounds[j]) mMinBounds[j] = vertexData[i].position[j];
       if (vertexData[i].position[j] > mMaxBounds[j]) mMaxBounds[j] = vertexData[i].position[j];
@@ -82,18 +84,72 @@ void MeshObj::render(void) {
 }
 
 void MeshObj::initShadowVolume(GLfloat lightPos[4]) {
-  // TODO: init the shadow volume for a given light source position 'lightPos' //
+  // XXX: init the shadow volume for a given light source position 'lightPos' //
+  Point3D light = Point3D(lightPos);
   
-  // TODO: clone all vertices and compute their projections //
+  // XXX: clone all vertices and compute their projections //
   //       -> store as NEW local array of 'vertex'          //
-  
-  // TODO: compute shadow volume faces (6 resp. 8 triangles depending on technique) //
+  std::vector<Vertex> projectionVertices = std::vector<Vertex>(mVertexData);
+  unsigned int pSize = projectionVertices.size();
+  // Make room for twice as many
+  projectionVertices.resize(pSize * 2);
+  std::copy(mVertexData.begin(), mVertexData.end(), &projectionVertices[pSize]);
+  for(unsigned int i = 0; i < pSize; i++) {
+    Vertex& v = projectionVertices[i+pSize];
+    Point3D pos = Point3D(v.position);
+    pos = pos + (pos - light) * 20;
+    memcpy(pos.data, v.position, 3*sizeof(float));
+  }
+
+  // XXX: compute shadow volume faces (6 resp. 8 triangles depending on technique) //
   //       -> check correct face orientation                                        //
   //       -> create new faces by adding indices to a NEW index array               //
+  std::vector<unsigned int> projectionIndices;
+  projectionIndices.reserve(mIndexCount * 6);
+  for(unsigned int i = 0; i < mIndexCount; i++) {
+    projectionIndices[i +0] = mIndexData[i+0];
+    projectionIndices[i +1] = mIndexData[i+0] + pSize;
+    projectionIndices[i +2] = mIndexData[i+2];
+
+    projectionIndices[i +3] = mIndexData[i+2];
+    projectionIndices[i +4] = mIndexData[i+0] + pSize;
+    projectionIndices[i +5] = mIndexData[i+2] + pSize;
+
+    projectionIndices[i +6] = mIndexData[i+0];
+    projectionIndices[i +7] = mIndexData[i+0] + pSize;
+    projectionIndices[i +8] = mIndexData[i+1];
+
+    projectionIndices[i +9] = mIndexData[i+1];
+    projectionIndices[i+10] = mIndexData[i+0] + pSize;
+    projectionIndices[i+11] = mIndexData[i+1] + pSize;
+
+    projectionIndices[i+12] = mIndexData[i+1];
+    projectionIndices[i+13] = mIndexData[i+1] + pSize;
+    projectionIndices[i+14] = mIndexData[i+2];
+
+    projectionIndices[i+15] = mIndexData[i+2];
+    projectionIndices[i+16] = mIndexData[i+1] + pSize;
+    projectionIndices[i+17] = mIndexData[i+2] + pSize;
+  }
   
-  // TODO: store the index count for indexed vertex buffer rendering to 'mShadowIndexCount' //
+  // XXX: store the index count for indexed vertex buffer rendering to 'mShadowIndexCount' //
+  mShadowIndexCount = 6 * mIndexCount;
   
-  // TODO: setup VBO ('mShadowVBO') and IBO ('mShadowIBO') for the computed data //
+  // XXX: setup VBO ('mShadowVBO') and IBO ('mShadowIBO') for the computed data //
+  if (mShadowVBO == 0) {
+    glGenBuffers(1, &mShadowVBO);
+  }
+  glBindBuffer(GL_ARRAY_BUFFER, mShadowVBO);
+  // copy data into the VBO //
+  glBufferData(GL_ARRAY_BUFFER, projectionVertices.size() * sizeof(Vertex), &projectionVertices[0], GL_STATIC_DRAW);
+  
+  // init and bind a IBO (index buffer object) //
+  if (mShadowIBO == 0) {
+    glGenBuffers(1, &mShadowIBO);
+  }
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mShadowIBO);
+  // copy data into the IBO //
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, mShadowIndexCount * sizeof(GLint), &projectionIndices[0], GL_STATIC_DRAW);
   
   // unbind buffers //
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
