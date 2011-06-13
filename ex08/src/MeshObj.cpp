@@ -98,7 +98,7 @@ void MeshObj::initShadowVolume(GLfloat lightPos[4]) {
     Vertex& v = projectionVertices[i+pSize];
     Point3D pos = Point3D(v.position);
     pos = pos + (pos - light) * 20;
-    memcpy(pos.data, v.position, 3*sizeof(float));
+    memcpy(v.position, pos.data, 3*sizeof(float));
   }
 
   // XXX: compute shadow volume faces (6 resp. 8 triangles depending on technique) //
@@ -106,30 +106,32 @@ void MeshObj::initShadowVolume(GLfloat lightPos[4]) {
   //       -> create new faces by adding indices to a NEW index array               //
   std::vector<unsigned int> projectionIndices;
   projectionIndices.reserve(mIndexCount * 6);
-  for(unsigned int i = 0; i < mIndexCount; i++) {
-    projectionIndices[i +0] = mIndexData[i+0];
-    projectionIndices[i +1] = mIndexData[i+0] + pSize;
-    projectionIndices[i +2] = mIndexData[i+2];
+  for(unsigned int i = 0; i < mIndexCount; i += 3) {
+    int j = 6*i;
 
-    projectionIndices[i +3] = mIndexData[i+2];
-    projectionIndices[i +4] = mIndexData[i+0] + pSize;
-    projectionIndices[i +5] = mIndexData[i+2] + pSize;
+    projectionIndices[j +0] = mIndexData[i+0];
+    projectionIndices[j +1] = mIndexData[i+0] + pSize;
+    projectionIndices[j +2] = mIndexData[i+2];
 
-    projectionIndices[i +6] = mIndexData[i+0];
-    projectionIndices[i +7] = mIndexData[i+0] + pSize;
-    projectionIndices[i +8] = mIndexData[i+1];
+    projectionIndices[j +3] = mIndexData[i+2];
+    projectionIndices[j +4] = mIndexData[i+0] + pSize;
+    projectionIndices[j +5] = mIndexData[i+2] + pSize;
 
-    projectionIndices[i +9] = mIndexData[i+1];
-    projectionIndices[i+10] = mIndexData[i+0] + pSize;
-    projectionIndices[i+11] = mIndexData[i+1] + pSize;
+    projectionIndices[j +6] = mIndexData[i+0];
+    projectionIndices[j +7] = mIndexData[i+0] + pSize;
+    projectionIndices[j +8] = mIndexData[i+1];
 
-    projectionIndices[i+12] = mIndexData[i+1];
-    projectionIndices[i+13] = mIndexData[i+1] + pSize;
-    projectionIndices[i+14] = mIndexData[i+2];
+    projectionIndices[j +9] = mIndexData[i+1];
+    projectionIndices[j+10] = mIndexData[i+0] + pSize;
+    projectionIndices[j+11] = mIndexData[i+1] + pSize;
 
-    projectionIndices[i+15] = mIndexData[i+2];
-    projectionIndices[i+16] = mIndexData[i+1] + pSize;
-    projectionIndices[i+17] = mIndexData[i+2] + pSize;
+    projectionIndices[j+12] = mIndexData[i+1];
+    projectionIndices[j+13] = mIndexData[i+1] + pSize;
+    projectionIndices[j+14] = mIndexData[i+2];
+
+    projectionIndices[j+15] = mIndexData[i+2];
+    projectionIndices[j+16] = mIndexData[i+1] + pSize;
+    projectionIndices[j+17] = mIndexData[i+2] + pSize;
   }
   
   // XXX: store the index count for indexed vertex buffer rendering to 'mShadowIndexCount' //
@@ -163,8 +165,8 @@ void MeshObj::renderShadowVolume() {
     glBindBuffer(GL_ARRAY_BUFFER, mShadowVBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    // glEnableVertexAttribArray(2);
+    // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
     
     // bind the index buffer object mIBO here //
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mShadowIBO);
