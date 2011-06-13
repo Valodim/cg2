@@ -157,7 +157,26 @@ void MeshObj::initShadowVolume(GLfloat lightPos[4]) {
 }
 
 void MeshObj::renderShadowVolume() {
-  // TODO: render the shadow volume //
+  // XXX: render the shadow volume //
+  if (mShadowVBO != 0) {
+    // init vertex attribute arrays //
+    glBindBuffer(GL_ARRAY_BUFFER, mShadowVBO);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    
+    // bind the index buffer object mIBO here //
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mShadowIBO);
+    
+    // render VBO as triangles //
+    glDrawElements(GL_TRIANGLES, mShadowIndexCount, GL_UNSIGNED_INT, (void*)0);
+    
+    // unbind the element render buffer //
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // unbind the vertex array buffer //
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  }
 }
 
 float MeshObj::getWidth(void) {
