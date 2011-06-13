@@ -43,6 +43,7 @@ Trackball trackball(0, 0.4, 4);
 ObjLoader objLoader;
 
 bool shadersInitialized = false;
+bool shadowUpToDate = false;
 GLuint shaderProgram;
 
 // light //
@@ -241,7 +242,11 @@ void renderScene() {
 }
 
 void renderShadow() {
-  // TODO: init your shadow volume, if update is needed //
+  // XXX: init your shadow volume, if update is needed //
+  if(!shadowUpToDate) {
+    objLoader.getMeshObj("scene")->initShadowVolume(lightPos);
+    shadowUpToDate = false;
+  }
   
   // TODO: disable rendering to screen and depth buffer //
   
@@ -300,23 +305,28 @@ void keyboardEvent(unsigned char key, int x, int y) {
     }
     case '8': {
       lightPos[2] -= 0.01;
+      shadowUpToDate = false;
       break;
     }
     case '2': {
       lightPos[2] += 0.01;
+      shadowUpToDate = false;
       break;
     }
     case '4': {
       lightPos[0] -= 0.01;
+      shadowUpToDate = false;
       break;
     }
     case '6': {
       lightPos[0] += 0.01;
+      shadowUpToDate = false;
       break;
     }
     case '5': {
       lightPos[0] = 0;
       lightPos[2] = 0;
+      shadowUpToDate = false;
       break;
     }
     case 'w': {
