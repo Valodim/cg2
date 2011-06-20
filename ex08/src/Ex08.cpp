@@ -258,7 +258,7 @@ void renderShadow() {
 
   // XXX: disable rendering to screen and depth buffer //
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-  // glDepthMask(GL_FALSE);
+  glDepthMask(GL_FALSE);
 
   // XXX: enable stencil test and face culling //
   glEnable(GL_STENCIL_TEST);
@@ -279,7 +279,7 @@ void renderShadow() {
   // XXX: enable rendering to screen and depth buffer and disable face culling //
   glDisable(GL_CULL_FACE);
 
-  // glDepthMask(GL_TRUE);
+  glDepthMask(GL_TRUE);
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
   // XXX: final pass -> render screen quad with current stencil buffer //
