@@ -230,6 +230,12 @@ void renderScene() {
   // enable shader //
   enableShader();
 
+  glPushMatrix(); {
+    glTranslatef(lightPos[0], lightPos[1], lightPos[2]);
+    glColor4f(0.8f, 0.8f, 0.0f, 0.6f);
+    glutSolidSphere(0.1f, 100, 100);
+  } glPopMatrix();
+
   // light source //
   glEnable(GL_LIGHT0);
   glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
