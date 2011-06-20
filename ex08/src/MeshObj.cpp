@@ -107,29 +107,37 @@ void MeshObj::initShadowVolume(GLfloat lightPos[4]) {
   std::vector<unsigned int> projectionIndices;
   projectionIndices.reserve(mIndexCount * 6);
   for(unsigned int i = 0, j = 0; i < mIndexCount; i += 3, j += 18) {
-    projectionIndices[j +0] = mIndexData[i+0];
+    Point3D v01 = Point3D(projectionVertices[mIndexData[i+1]].position) -Point3D(projectionVertices[mIndexData[i+0]].position);
+    Point3D v02 = Point3D(projectionVertices[mIndexData[i+2]].position) -Point3D(projectionVertices[mIndexData[i+0]].position);
+
+    Point3D trinorm = v01.cross(v02);
+    Point3D trilight = Point3D(projectionVertices[mIndexData[i+0]].position) -light;
+
+    int off = (trinorm * trilight) < 0.0f ? +2 : 0;
+
+    projectionIndices[j +0 +off] = mIndexData[i+0];
     projectionIndices[j +1] = mIndexData[i+0] + pSize;
-    projectionIndices[j +2] = mIndexData[i+2] + pSize;
+    projectionIndices[j +2 -off] = mIndexData[i+2] + pSize;
 
-    projectionIndices[j +3] = mIndexData[i+2] + pSize;
+    projectionIndices[j +3 +off] = mIndexData[i+2] + pSize;
     projectionIndices[j +4] = mIndexData[i+2];
-    projectionIndices[j +5] = mIndexData[i+0];
+    projectionIndices[j +5 -off] = mIndexData[i+0];
 
-    projectionIndices[j +6] = mIndexData[i+1];
+    projectionIndices[j +6 +off] = mIndexData[i+1];
     projectionIndices[j +7] = mIndexData[i+1] + pSize;
-    projectionIndices[j +8] = mIndexData[i+0] + pSize;
+    projectionIndices[j +8 -off] = mIndexData[i+0] + pSize;
 
-    projectionIndices[j +9] = mIndexData[i+0] + pSize;
+    projectionIndices[j +9 +off] = mIndexData[i+0] + pSize;
     projectionIndices[j+10] = mIndexData[i+0];
-    projectionIndices[j+11] = mIndexData[i+1];
+    projectionIndices[j+11 -off] = mIndexData[i+1];
 
-    projectionIndices[j+12] = mIndexData[i+2];
+    projectionIndices[j+12 +off] = mIndexData[i+2];
     projectionIndices[j+13] = mIndexData[i+2] + pSize;
-    projectionIndices[j+14] = mIndexData[i+1] + pSize;
+    projectionIndices[j+14 -off] = mIndexData[i+1] + pSize;
 
-    projectionIndices[j+15] = mIndexData[i+1] + pSize;
+    projectionIndices[j+15 +off] = mIndexData[i+1] + pSize;
     projectionIndices[j+16] = mIndexData[i+1];
-    projectionIndices[j+17] = mIndexData[i+2];
+    projectionIndices[j+17 -off] = mIndexData[i+2];
   }
   
   // XXX: store the index count for indexed vertex buffer rendering to 'mShadowIndexCount' //
