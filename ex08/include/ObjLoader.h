@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <cmath>
 
 #include "MeshObj.h"
 
@@ -58,7 +59,20 @@ struct Point3D {
       p.data[1] = this->data[2] * a.data[0] - this->data[0] * a.data[2];
       p.data[2] = this->data[0] * a.data[1] - this->data[1] * a.data[0];
       return p;
-}
+  }
+
+  float length() {
+      return sqrt( this->data[0]*this->data[0] + this->data[1]*this->data[1] + this->data[2]*this->data[2] );
+  }
+
+  Point3D normalized() {
+      Point3D p;
+      float length = this->length();
+      p.data[0] = this->data[0] / length;
+      p.data[1] = this->data[1] / length;
+      p.data[2] = this->data[2] / length;
+      return p;
+  }
 
 };
 
