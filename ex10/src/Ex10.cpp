@@ -196,6 +196,26 @@ void renderScene() {
   // TODO: render your scene using the material shaders to your FBO into the first color attachment //
   //       only render the sun a depth values before rendering the other planets fully colored      //
   //       use mPath and mTimer to compute the planet's positions                                   //
+
+  // Sun at 0,0,0
+  glLoadIdentity();
+  objLoader.getMeshObj("sun")->render();
+
+  // Get current time from timer
+  double time = mTimer.getTime();
+
+  // Get the way along the path for current time
+  glPushMatrix(); {
+      ControlPoint p = mPath.getPositionForTime(time);
+      glTranslatef(p.pos[0], p.pos[1], p.pos[2]);
+      objLoader.getMeshObj("mars")->render();
+  } glPopMatrix();
+
+  glPushMatrix(); {
+      ControlPoint p = mPath.getPositionForTime(time *1.4f);
+      glTranslatef(p.pos[0], p.pos[1], p.pos[2]);
+      objLoader.getMeshObj("moon")->render();
+  } glPopMatrix();
   
   // TODO: keep the current depth map and render the visible parts of sun to the second color attachment //
   
