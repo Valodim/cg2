@@ -205,17 +205,15 @@ void renderScene() {
   double time = mTimer.getTime();
 
   // Get the way along the path for current time
-  glPushMatrix(); {
-      ControlPoint p = mPath.getPositionForTime(time);
-      glTranslatef(p.pos[0], p.pos[1], p.pos[2]);
-      objLoader.getMeshObj("mars")->render();
-  } glPopMatrix();
+  ControlPoint p1 = mPath.getPositionForTime(time);
+  float mars_radius = 10.0;
+  glTranslatef(p1.pos[0] *mars_radius, p1.pos[1] *mars_radius, p1.pos[2] *mars_radius);
+  objLoader.getMeshObj("mars")->render();
 
-  glPushMatrix(); {
-      ControlPoint p = mPath.getPositionForTime(time *1.4f);
-      glTranslatef(p.pos[0], p.pos[1], p.pos[2]);
-      objLoader.getMeshObj("moon")->render();
-  } glPopMatrix();
+  ControlPoint p2 = mPath.getPositionForTime(time *1.4f);
+  float moon_radius = 3.0;
+  glTranslatef(p2.pos[0] *moon_radius, p2.pos[1] *moon_radius, p2.pos[2] *moon_radius);
+  objLoader.getMeshObj("moon")->render();
   
   // TODO: keep the current depth map and render the visible parts of sun to the second color attachment //
   
