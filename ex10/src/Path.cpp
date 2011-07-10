@@ -74,14 +74,16 @@ ControlPoint Path::getPositionForTime(float t) {
                         +0*(P1.pos[3]) +2*(P2.pos[3]) +0*(P3.pos[3]) +0*(P4.pos[3]),
   };
 
-  float t2 = t*t;
-  float t3 = t*t*t;
+  float t0 = 0.5;
+  float t1 = t0*t;
+  float t2 = t1*t;
+  float t3 = t2*t;
 
   // TODO: compute the interpolated point //
-  P.pos[0] = 0.5* (t3*mat[0] + t2*mat[1] + t*mat[2] + mat[3]);
-  P.pos[1] = 0.5* (t3*mat[4] + t2*mat[5] + t*mat[6] + mat[7]);
-  P.pos[2] = 0.5* (t3*mat[8] + t2*mat[9] + t*mat[10] + mat[11]);
-  P.pos[3] = 0.5* (t3*mat[12] + t2*mat[13] + t*mat[14] + mat[15]);
+  P.pos[0] = t3*mat[0]  + t2*mat[1]  + t1*mat[2]  + t0*mat[3];
+  P.pos[1] = t3*mat[4]  + t2*mat[5]  + t1*mat[6]  + t0*mat[7];
+  P.pos[2] = t3*mat[8]  + t2*mat[9]  + t1*mat[10] + t0*mat[11];
+  P.pos[3] = t3*mat[12] + t2*mat[13] + t1*mat[14] + t0*mat[15];
 
   return P;
 }
