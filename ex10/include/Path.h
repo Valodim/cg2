@@ -1,7 +1,7 @@
 #ifndef __PATH__
 #define __PATH__
 
-#include <vector>
+#include <map>
 
 struct ControlPoint {
   ControlPoint(float x = 0, float y = 0, float z = 0, float t = -1.0) {
@@ -29,7 +29,7 @@ class Path {
     ControlPoint getPositionForTime(float t);
   private:
     bool mIsLooped;
-    std::vector<ControlPoint> mControlPoints;
+    std::map<float, ControlPoint> mControlPoints;
 };
 
 #endif
