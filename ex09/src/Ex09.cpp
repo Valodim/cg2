@@ -18,7 +18,7 @@
 
 void initGL();
 void initScene();
-// TODO: implement this method below //
+// XXX: implement this method below //
 void initFBO();
 
 void resizeGL(int w, int h);
@@ -56,13 +56,13 @@ GLfloat lightPos[4] = {0.0, 0.0, 0.0, 1.0};
 bool lightSourcePosUpdate = true;
 
 int main (int argc, char **argv) {
-  
+
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_STENCIL);
-  
+
   windowWidth = 512;
   windowHeight = 512;
-  
+
   zNear = 0.1f;
   zFar = 1000.0f;
   fov = 45.0f;
@@ -70,34 +70,34 @@ int main (int argc, char **argv) {
   glutInitWindowSize (windowWidth, windowHeight);
   glutInitWindowPosition (100, 100);
   glutCreateWindow("Exercise 09");
-  
+
   glutReshapeFunc(resizeGL);
   glutDisplayFunc(updateGL);
   glutIdleFunc(idle);
   glutKeyboardFunc(keyboardEvent);
   glutMouseFunc(mouseEvent);
   glutMotionFunc(mouseMoveEvent);
-  
+
   GLenum err = glewInit();
   if (GLEW_OK != err) {
     fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
   }
   fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-  
+
   initGL();
   initFBO();
-  
+
   initScene();
-  
+
   glutMainLoop();
-  
+
   return 0;
 }
 
 void initGL() {
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glEnable(GL_DEPTH_TEST);
-  
+
   // set projectionmatrix
   glMatrixMode(GL_PROJECTION);
   gluPerspective(fov, 1.0, zNear, zFar);
@@ -113,61 +113,90 @@ void initScene() {
   material->setDiffuseTexture("textures/mars.png");
   material->setNormalTexture("textures/mars_normal.png");
   objLoader.getMeshObj("mars")->setMaterial(material);
-  
+
   objLoader.loadObjFile("./meshes/sphere.obj", "moon", 0.8);
   material = new Material();
   material->setShaderProgram(normalMapShader);
   material->setDiffuseTexture("textures/moon.png");
   material->setNormalTexture("textures/moon_normal.png");
   objLoader.getMeshObj("moon")->setMaterial(material);
-  
-  // TODO: initialize and load your blur shader here //
+
+  // XXX: initialize and load your blur shader here //
+  mBlurShader = new Shader("shader/blurShader.vert", "shader/blurShader.frag");
+
 }
 
 void initFBO() {
-  // TODO: init OpenGL texture objects for color data and depth information          //
+  // XXX: init OpenGL texture objects for color data and depth information          //
   // Note that a shader cannot write into a texture and simultaneously read from it. //
   // So when a color attachment of a FBO is enabled for writing, a shader cannot     //
   // access the attached texture for reading. Thus you may want to initialize TWO    //
   // textures that can be used in an alternating way (similar to ping-pong-buffering)//
-  
-  // TODO: create FBO //
-  
-  // TODO: attach textures to FBO //
-  
+
+  glGenTextures(2, &fboTexture);
+
+  glBindTexture2D(GL_TEXTURE_2D, fboTexture[0]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+
+  glBindTexture2D(GL_TEXTURE_2D, fboTexture[1]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+
+  glGenTextures(1, &fboDepthTexture);
+
+  glBindTexture2D(GL_TEXTURE_2D, fboDepthTexture);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+
+  // XXX: create FBO //
+  glGenFramebuffers(1, &fbo);
+
+  glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+  // XXX: attach textures to FBO //
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, fboTexture[0], 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, fboTexture[1], 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, fboDepthTexture, 0);
+
   // unbind FBO until it's needed //
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void updateGL() {
   GLfloat aspectRatio = (GLfloat)windowWidth / windowHeight;
-  
+
   // clear renderbuffer //
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  
+
   glViewport(0, 0, windowWidth, windowHeight);
-  
+
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(fov, aspectRatio, zNear, zFar);
-  
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  
+
   trackball.rotateView();
-  
+
   // render  //
   renderScene();
-  
+
   // swap render and screen buffer //
   glutSwapBuffers();
 }
 
 void renderScene() {
-  // TODO: render scene into first color attachment of FBO -> use as filter texture later on //
-  
+  // XXX: render scene into first color attachment of FBO -> use as filter texture later on //
+  glBindFramebuffer(GL_FRAMEBUFFER, fboID);
+  glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  
+
   // render actual scene objects //
   for (unsigned int i = 0; i < 20; ++i) {
     glPushMatrix();
@@ -177,27 +206,42 @@ void renderScene() {
     } else {
       objLoader.getMeshObj("moon")->render();
     }
-    glPopMatrix(); 
+    glPopMatrix();
   }
-  
-  // TODO: enable blur shader //
-  
+
+  // XXX: enable blur shader //
+  mBlurShader->enable();
+
   // TODO: disable depth testing AND writing - we do not want to change the depth map recovered from the previous render pass //
-  
-  // TODO: upload needed uniforms and pass your textures to the shader //
-  
+  glDisable(GL_DEPTH_TEST);
+
+  // XXX: upload needed uniforms and pass your textures to the shader //
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, fboTexture[0]);
+  glUniform1i(glGetUniformLocation(shaderProgram, "tex_stage0"), 0);
+
   // TODO: render first (horizontal) blur pass to second color attachment in FBO //
-  
+  glDrawBuffer(GL_COLOR_ATTACHMENT1);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   renderScreenFillingQuad();
-  
-  // TODO: vertical blur depending on depth -> final rendering to screen //
-  
-  // TODO: update uniforms that may have changed (filter orientation, color texture data from last render pass) //
+
+  // XXX: vertical blur depending on depth -> final rendering to screen //
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  // XXX: update uniforms that may have changed (filter orientation, color texture data from last render pass) //
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, fboTexture[1]);
+  glUniform1i(glGetUniformLocation(shaderProgram, "tex_stage1"), 0);
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   renderScreenFillingQuad();
-  
-  // TODO: disable blur shader and re-enable depth testing again //
+
+  // XXX: disable blur shader and re-enable depth testing again //
+  glEnable(GL_DEPTH_TEST);
+
+  mBlurShader->disable();
+
 }
 
 void renderShadow() {
@@ -206,17 +250,17 @@ void renderShadow() {
     objLoader.getMeshObj("mars")->initShadowVolume(lightPos);
     lightSourcePosUpdate = false;
   }
-  
+
   // draw nothing  to screen //
   glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
   glDepthMask(GL_FALSE);
-  
+
   // enable stencil test and face culling //
   glEnable(GL_STENCIL_TEST);
   glEnable(GL_CULL_FACE);
-  
+
   // ## implementation of Carmack's reverse using depth-fail test ## //
-  
+
   // first shadow pass -> render back facing parts                                      //
   // if object is in front of shadow volume back-face (depth test for that face fails), //
   // it might be in shadow -> increase stencil buffer                                   //
@@ -224,7 +268,7 @@ void renderShadow() {
   glStencilOp(GL_KEEP, GL_INCR, GL_KEEP);
   glFrontFace(GL_CW);
   objLoader.getMeshObj("mars")->renderShadowVolume();
-  
+
   // second shadow pass -> render front facing parts                                      //
   // if depth test fails for front-face of shadow volume, the shadow volume is            //
   // completely behind the current object -> thus is is not in shadow -> decrease stencil //
@@ -232,7 +276,7 @@ void renderShadow() {
   glStencilOp(GL_KEEP, GL_DECR, GL_KEEP);
   glFrontFace(GL_CCW);
   objLoader.getMeshObj("mars")->renderShadowVolume();
-  
+
   // final pass -> render screen quad with current stencil buffer         //
   // disable face culling and re-enable writing to color and depth buffer //
   glDisable(GL_CULL_FACE);

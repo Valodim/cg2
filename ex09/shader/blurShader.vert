@@ -1,6 +1,6 @@
 #version 120
 
-// nothing much to do here ... just process vertex and texCoord //
+# nothing much to do here ... just process vertex and texCoord
 
 void main(void) {
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
